@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
 import * as z from "zod";
+import pptxgen from "pptxgenjs";
 import axios from "axios";
 type Props = {};
 const formSchema = z.object({
@@ -54,19 +55,35 @@ const SongQuery = (props: Props) => {
         artist: "",
       });
     }
-    //fetch data from the api/lyrics endpoint using axios and a GET request
+    const link = document.createElement("a");
+
     try {
-      const res = await axios.get(`/api/lyrics`, {
-        params: {
-          song: song,
-          artist: artist,
-        },
+      const response = await axios.get(`/api/genius?song=${song}&artist=${artist}`, { responseType: "blob" });
+
+      // Set the download attribute to the filename
+      link.download = "presentation.pptx";
+
+      // Create a Blob object from the response data
+      const blob = new Blob([response.data], {
+        type: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
       });
-      console.log(res.data);
-    } catch (error) {
-      console.log(error);
+
+      // Set the href attribute to the URL of the Blob
+      link.href = window.URL.createObjectURL(blob);
+
+      // Append the link to the document body
+      document.body.appendChild(link);
+
+      // Click the link to trigger the download
+      link.click();
+    } catch (error: any) {
+      // Handle errors and show an alert or display an error message
+      console.error("Error:", error.response ? error.response.data.error : error.message);
+    } finally {
+      // Remove the link from the document body
+      document.body.removeChild(link);
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
