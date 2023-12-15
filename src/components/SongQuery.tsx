@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
 import * as z from "zod";
-import pptxgen from "pptxgenjs";
 import axios from "axios";
+import MessageDisplay from "./MessageDisplay";
 type Props = {};
 const formSchema = z.object({
   song: z.string().min(1, {
@@ -25,6 +25,7 @@ const SongQuery = (props: Props) => {
     song: "",
     artist: "",
   });
+  const [responseMessage, setResponseMessage] = useState({ message: "", type: "" });
 
   const handleArtistUpdate = (e: any) => {
     setArtist(e.target.value);
@@ -35,6 +36,7 @@ const SongQuery = (props: Props) => {
   };
 
   const handleSubmit = async () => {
+    setResponseMessage({ message: "", type: "" });
     setLoading(true);
     const formData = {
       song: song.trim(),
@@ -78,45 +80,61 @@ const SongQuery = (props: Props) => {
       link.click();
     } catch (error: any) {
       // Handle errors and show an alert or display an error message
-      console.error("Error:", error.response ? error.response.data.error : error.message);
+      console.log("Error:", error.response.data);
+      switch (error.response.request.status) {
+        case 404:
+          setResponseMessage({ message: "Song not found", type: "error" });
+          break;
+        default:
+          break;
+      }
     } finally {
       // Remove the link from the document body
-      document.body.removeChild(link);
+      try {
+        document.body.removeChild(link);
+      } catch (error) {
+        console.log(error);
+      }
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex gap-4 h-fit items-center flex-col md:flex-row ">
-      <div className="grid items-center gap-1.5 ">
-        <label htmlFor="song" className="text-sm">
-          Song name
-        </label>
-        <Input
-          placeholder="Song Name"
-          id="song"
-          onChange={handlesongUpdate}
-          className={errorMessages.song ? "border border-red-400" : ""}
-        />
-        <p className="text-red-500 text-sm h-5 ">{errorMessages.song}</p>
-      </div>
-      <div className="grid items-center gap-1.5">
-        <label htmlFor="artist" className="text-sm">
-          Artist
-        </label>
-        <Input
-          placeholder="Astist"
-          id="artist"
-          onChange={handleArtistUpdate}
-          className={errorMessages.artist ? "border border-red-400" : ""}
-        />
-        <p className="text-red-500 text-sm h-5">{errorMessages.artist}</p>
-      </div>
+    <div className="flex flex-col">
+      <div className="flex gap-4 h-fit items-center flex-col md:flex-row ">
+        <div className="grid items-center gap-1.5 ">
+          <label htmlFor="song" className="text-sm">
+            Song name
+          </label>
+          <Input
+            placeholder="Song Name"
+            id="song"
+            onChange={handlesongUpdate}
+            className={errorMessages.song ? "border border-red-400" : ""}
+          />
+          <p className="text-red-500 text-sm h-5 ">{errorMessages.song}</p>
+        </div>
+        <div className="grid items-center gap-1.5">
+          <label htmlFor="artist" className="text-sm">
+            Artist
+          </label>
+          <Input
+            placeholder="Astist"
+            id="artist"
+            onChange={handleArtistUpdate}
+            className={errorMessages.artist ? "border border-red-400" : ""}
+          />
+          <p className="text-red-500 text-sm h-5">{errorMessages.artist}</p>
+        </div>
 
-      <Button onClick={handleSubmit} disabled={loading}>
-        {loading && <Loader2 className="animate-spin mr-2" size={24} />}
-        Submit
-      </Button>
+        <Button onClick={handleSubmit} disabled={loading}>
+          {loading && <Loader2 className="animate-spin mr-2" size={24} />}
+          Submit
+        </Button>
+      </div>
+      <div>
+        <MessageDisplay responseMessage={responseMessage} setResponseMessage={setResponseMessage} />
+      </div>
     </div>
   );
 };

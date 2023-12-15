@@ -16,7 +16,7 @@ export default function Navbar() {
       <div className="items-center px-4 max-w-screen-xl mx-auto md:flex md:px-8">
         <div className="flex items-center justify-between py-3 md:py-5 md:block">
           <Link href="/">
-            <h1 className="text-3xl font-bold text-purple-600">Logo</h1>
+            <h1 className="text-3xl font-bold text-purple-600">SongSculpt</h1>
           </Link>
           <div className="md:hidden">
             <button
@@ -34,7 +34,7 @@ export default function Navbar() {
                 <Link href={item.path}>{item.title}</Link>
               </li>
             ))}
-            {isLoaded && isSignedIn ? (
+            {/* {isLoaded && isSignedIn ? (
               <li>
                 <UserButton />
               </li>
@@ -44,7 +44,7 @@ export default function Navbar() {
                   Sign In
                 </Link>
               </li>
-            )}
+            )} */}
           </ul>
         </div>
       </div>

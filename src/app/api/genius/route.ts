@@ -4,7 +4,6 @@ import axios from "axios";
 import extractLyrics from "./extractLyrics";
 import generateppt from "./presentation";
 import getMostRelevantResult from "./getMostRelevantResult";
-import getLyricsFromStands4 from "./stands4";
 
 const BASE_URL = "https://api.genius.com";
 const ACCESS_TOKEN = process.env.GENIUS_ACCESS_TOKEN;
@@ -28,16 +27,17 @@ export async function GET(req: NextRequest) {
     let relevantHit = getMostRelevantResult(searchResponse.data.response.hits, song, artist);
     let lyrics; //: { sectionTitle: string; lyrics: string }[];
     if (relevantHit) {
-      //   const songId = relevantHit.result.id;
-      //   // Step 2: Get lyrics for the song
-      //   const lyricsUrl = `${BASE_URL}/songs/${songId}`;
-      //   const lyricsResponse = await axios.get(lyricsUrl, {
-      //     headers: { Authorization: `Bearer ${ACCESS_TOKEN}` },
-      //   });
-      //   let url = lyricsResponse.data.response.song.url;
-      //   lyrics = await extractLyrics(url);
+      const songId = relevantHit.result?.id;
+      // Step 2: Get lyrics for the song
+      const lyricsUrl = `${BASE_URL}/songs/${songId}`;
+      const lyricsResponse = await axios.get(lyricsUrl, {
+        headers: { Authorization: `Bearer ${ACCESS_TOKEN}` },
+      });
+      let url = lyricsResponse.data.response.song.url;
+      lyrics = await extractLyrics(url);
     } else {
-      lyrics = await getLyricsFromStands4(song, artist);
+      console.log("No results found");
+      return NextResponse.json({}, { status: 404 });
     }
 
     let pres = generateppt(lyrics!, song, artist);

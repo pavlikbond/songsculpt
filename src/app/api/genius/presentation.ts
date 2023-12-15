@@ -19,7 +19,7 @@ export default function generateppt(lyrics: { sectionTitle: string; lyrics: stri
   // 2. Add a Slide
   for (let lyric of lyrics) {
     let slide = pres.addSlide();
-    let textboxText = lyric.sectionTitle + "\n" + lyric.lyrics;
+    let textboxText = (lyric.sectionTitle ? lyric.sectionTitle + "\n" : "") + lyric.lyrics;
     slide.addText(textboxText, {
       x: 0,
       y: 0,

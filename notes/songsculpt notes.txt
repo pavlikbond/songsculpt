@@ -1,0 +1,1 @@
+1. If it's a one word slide either remove it or move it up to the previous slide unless it's a title slide?
