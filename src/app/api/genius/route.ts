@@ -11,8 +11,11 @@ const ACCESS_TOKEN = process.env.GENIUS_ACCESS_TOKEN;
 //handler for getting lyrics from musixmatch api using fetch
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
-  let song = searchParams.get("song") as string;
-  let artist = searchParams.get("artist") as string;
+  const song = searchParams.get("song") as string;
+  const artist = searchParams.get("artist") as string;
+  const includeTitleSlide = searchParams.get("includeTitleSlide") === "true";
+  const backgroundColor = searchParams.get("backgroundColor") as string;
+  const textColor = searchParams.get("textColor") as string;
   //pull out query params
   console.log(song, artist);
   try {
@@ -40,7 +43,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({}, { status: 404 });
     }
 
-    let pres = generateppt(lyrics!, song, artist);
+    let pres = generateppt(lyrics!, song, artist, includeTitleSlide, backgroundColor, textColor);
 
     try {
       const data: any = await pres.stream();

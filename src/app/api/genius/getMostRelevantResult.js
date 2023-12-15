@@ -6,6 +6,18 @@ export default function getMostRelevantResult(hits, song, artist) {
   if (hits.length === 0) {
     return null;
   }
+  //if hits title contains the word 'instrumental' filter it out
+  hits = hits.filter((hit) => {
+    return !hit.result.full_title.toLowerCase().includes("instrumental");
+  });
+
+  //filter out songs that say 'remix' in the title unless the search query also contains the word 'remix'
+  if (!song.toLowerCase().includes("remix")) {
+    hits = hits.filter((hit) => {
+      return !hit.result.full_title.toLowerCase().includes("remix");
+    });
+  }
+
   // Create a list of items to search through
   const itemsToSearch = hits.map((hit) => ({
     title: removeStopWords(hit.result.full_title),

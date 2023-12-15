@@ -1,5 +1,8 @@
 "use client";
 import { IoClose } from "react-icons/io5";
+import { IoMdCheckmarkCircleOutline } from "react-icons/io";
+
+import { MdError } from "react-icons/md";
 type MessageProps = {
   responseMessage: {
     message: string;
@@ -20,10 +23,13 @@ const MessageDisplay = ({ responseMessage, setResponseMessage }: MessageProps) =
           className={`${
             responseMessage.type === "error"
               ? "bg-red-100 text-red-500 border-red-400"
-              : "bg-green-100 text-green-500 border-green-400"
+              : "bg-green-100 text-green-600 border-green-400"
           } p-2 rounded-md my-2 border-l-4 border-solid flex justify-between items-center`}
         >
-          <p>{responseMessage.message}</p>
+          <div className="flex gap-4 items-center">
+            {responseMessage.type === "error" ? <MdError size="28" /> : <IoMdCheckmarkCircleOutline size="28" />}
+            <p>{responseMessage.message}</p>
+          </div>
           <IoClose
             onClick={deleteMessage}
             size="28"
