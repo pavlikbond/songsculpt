@@ -6,9 +6,9 @@ type Props = {
 
 const ExampleSlide = ({ settings }: Props) => {
   return (
-    <div className="rounded border-2 shadow p-6">
+    <div className="rounded border-2 shadow p-6 overflow-hidden">
       <h2 className="text-center text-2xl mb-4 font-semibold text-slate-600">Example Slide</h2>
-      <div className="border rounded shadow border-slate-600 text-center w-full aspect-video">
+      <div className="overflow-hidden border rounded shadow border-slate-600 text-center w-full aspect-video">
         <div
           className="p-6 h-full flex flex-col items-center justify-center"
           style={{ color: settings.textColor, backgroundColor: settings.backgroundColor }}

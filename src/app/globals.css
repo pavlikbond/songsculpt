@@ -92,8 +92,10 @@
 .style1::-webkit-color-swatch {
   border-radius: 5px;
   border: none;
+  outline: 1px solid lightgrey;
 }
 .style1::-moz-color-swatch {
   border-radius: 5px;
   border: none;
+  outline: 1px solid lightgrey;
 }
