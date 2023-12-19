@@ -68,7 +68,7 @@ const SongQuery = (props: Props) => {
   }, [settings]);
 
   return (
-    <div className="flex flex-col w-full mx-auto max-w-2xl">
+    <div className="flex flex-col gap-10 w-full mx-auto max-w-2xl my-6 md:my-12">
       <SearchBar settings={settings} setResponseMessage={setResponseMessage}></SearchBar>
       <MessageDisplay responseMessage={responseMessage} setResponseMessage={setResponseMessage} />
       <div className="grid gap-6">

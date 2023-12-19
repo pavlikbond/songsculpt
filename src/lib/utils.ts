@@ -1,11 +1,14 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-
+import { Lyrics } from "@/types";
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function processLyrics(lyricsString: string): { sectionTitle: string | null; lyrics: string }[] {
+export function processLyrics(lyricsString: string): Lyrics {
+  if (!lyricsString) {
+    return [];
+  }
   const sections = lyricsString.split("\n\n");
 
   const lyricsArray = sections.map((section) => {
@@ -32,5 +35,5 @@ export function processLyrics(lyricsString: string): { sectionTitle: string | nu
     };
   });
 
-  return lyricsArray;
+  return lyricsArray as Lyrics;
 }

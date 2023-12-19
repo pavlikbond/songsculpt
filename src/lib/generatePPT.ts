@@ -1,13 +1,8 @@
 import pptxgen from "pptxgenjs";
 import { Settings } from "@/types";
-
+import { Lyrics } from "@/types";
 //export function that creates a presenation given the lyrics
-export default function generateppt(
-  lyrics: { sectionTitle: string; lyrics: string }[],
-  song: string,
-  artist: string,
-  settings: Settings
-) {
+export default function generateppt(lyrics: Lyrics, song: string, artist: string, settings: Settings) {
   let { includeTitleSlide, backgroundColor, textColor, fontFamily = "arial" } = settings;
   let pres = new pptxgen();
   //add title slide with song name and artist, center the title inside of the slide and make it big
@@ -17,7 +12,13 @@ export default function generateppt(
       fill: backgroundColor,
     };
 
-    let textboxText = `${song} by ${artist}`;
+    let textboxText = "";
+    if (artist && song) {
+      textboxText = `${song} by ${artist}`;
+    } else {
+      //set texboxText to be first line in lyrics
+      textboxText = lyrics[0].lyrics.split("\n")[0];
+    }
     slide.addText(textboxText, {
       y: "30%",
       w: "100%",
@@ -49,9 +50,17 @@ export default function generateppt(
     });
   }
   // 3. Save the Presentation
-  const fileName = `${song.replaceAll(" ", "_")}.pptx`;
+  let fileName = "";
+
+  if (artist && song) {
+    fileName = `${song.replaceAll(" ", "_")}`;
+  } else {
+    fileName = "Lyrics" + Date.now();
+  }
+
+  const fullFileName = `${fileName}.pptx`;
   return pres
-    .writeFile({ fileName: fileName })
+    .writeFile({ fileName: fullFileName })
     .then(() => {
       //return success
       return true;

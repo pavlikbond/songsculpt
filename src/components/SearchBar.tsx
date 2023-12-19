@@ -47,15 +47,43 @@ const SearchBar = ({ setResponseMessage, settings }: Props) => {
     setSong(e.target.value);
   };
 
-  const processPastedLyrics = (e: any) => {
-    const lyrics = e.target.value;
-    const processedLyrics = processLyrics(lyrics);
-    lyricsRef.current = processedLyrics;
+  const updateLyrics = (e: any) => {
+    lyricsRef.current = processLyrics(e.target.value);
+  };
+
+  const processPastedLyrics = async () => {
+    console.log(lyricsRef.current);
+
+    if (lyricsRef.current.length === 0) {
+      setResponseMessage({ message: "Please paste lyrics", type: "error" });
+      return;
+    }
+    setResponseMessage({ message: "", type: "" });
+    setLoading(true);
+    const link = document.createElement("a");
+    try {
+      let generatepptResponse = await generatePpt(lyricsRef.current, song, artist, settings);
+      if (generatepptResponse) {
+        setResponseMessage({ message: "Success! Check Your Downloads", type: "success" });
+      }
+    } catch (error: any) {
+      const genericError = "Something went wrong. Please try again.";
+      // Handle errors and show an alert or display an error message
+      console.log("Error:", error.response.data);
+      setResponseMessage({ message: error.response?.data?.error || genericError, type: "error" });
+    } finally {
+      // Remove the link from the document body
+      try {
+        document.body.removeChild(link);
+      } catch (error) {
+        console.log(error);
+      }
+      setLoading(false);
+    }
   };
 
   const handleSubmit = async () => {
     setResponseMessage({ message: "", type: "" });
-    setLoading(true);
     const formData = {
       song: song.trim(),
       artist: artist.trim(),
@@ -67,7 +95,7 @@ const SearchBar = ({ setResponseMessage, settings }: Props) => {
         song: issues.find((issue) => issue.path[0] === "song")?.message || "",
         artist: issues.find((issue) => issue.path[0] === "artist")?.message || "",
       });
-      setLoading(false);
+
       return;
     } else {
       setErrorMessages({
@@ -75,10 +103,10 @@ const SearchBar = ({ setResponseMessage, settings }: Props) => {
         artist: "",
       });
     }
+    setLoading(true);
     const link = document.createElement("a");
 
     try {
-      let lyrics = lyricsRef.current.length ? lyricsRef.current : [];
       if (!(song === prevSongRef.current && artist === prevArtistRef.current)) {
         const response = await axios.get(`/api/genius?song=${song}&artist=${artist}`, {
           params: {
@@ -87,14 +115,13 @@ const SearchBar = ({ setResponseMessage, settings }: Props) => {
             textColor: settings.textColor,
           },
         });
-        lyrics = response.data.lyrics;
-        lyricsRef.current = lyrics;
+        lyricsRef.current = response.data.lyrics || [];
       } else {
         //wait for 1 second
         await new Promise((r) => setTimeout(r, 1000));
       }
       //then generate the ppt
-      let generatepptResponse = await generatePpt(lyrics, song, artist, settings);
+      let generatepptResponse = await generatePpt(lyricsRef.current, song, artist, settings);
       if (generatepptResponse) {
         setResponseMessage({ message: "Success! Check Your Downloads", type: "success" });
       }
@@ -117,9 +144,15 @@ const SearchBar = ({ setResponseMessage, settings }: Props) => {
   };
 
   return (
-    <div className="mx-auto my-12">
-      <Tabs defaultValue="query" className="w-96">
-        <TabsList>
+    <div className="w-full">
+      <Tabs
+        defaultValue="query"
+        className="mx-auto"
+        onValueChange={() => {
+          setResponseMessage({ message: "", type: "" });
+        }}
+      >
+        <TabsList className="w-full">
           <TabsTrigger value="query">Search by Song Name</TabsTrigger>
           <TabsTrigger value="paste">Paste Lyrics</TabsTrigger>
         </TabsList>
@@ -160,12 +193,12 @@ const SearchBar = ({ setResponseMessage, settings }: Props) => {
           <label htmlFor="lyrics" className="text-sm">
             Paste Lyrics Below
           </label>
-          <Textarea className="mb-4 mt-2 h-56" placeholder="Lyrics" name="lyrics" id="lyrics" />
+          <Textarea onChange={updateLyrics} className="mb-4 mt-2 h-56" placeholder="Lyrics" name="lyrics" id="lyrics" />
           <MessageDisplay
             responseMessage={{ type: "info", message: "Add empty lines where a new slide should be made." }}
           />
           <div className="flex justify-end">
-            <Button disabled={loading}>
+            <Button onClick={processPastedLyrics} disabled={loading}>
               {loading && <Loader2 className="animate-spin mr-2" size={24} />}
               Submit
             </Button>

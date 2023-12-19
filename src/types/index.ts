@@ -6,6 +6,6 @@ export type Settings = {
 };
 
 export type Lyrics = {
-  sectionTitle?: string;
-  lyrics?: string;
+  sectionTitle: string | null;
+  lyrics: string;
 }[];
