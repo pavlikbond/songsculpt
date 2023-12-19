@@ -5,31 +5,38 @@ import * as cheerio from "cheerio";
  * @param {string} url - Genius URL
  */
 export default async function extractLyrics(url) {
-  try {
-    const { data } = await axios.get(url);
-    const $ = cheerio.load(data);
-    let lyrics = $('div[class="lyrics"]').text().trim();
+  const maxRetries = 3; // Define the maximum number of retries
+  let retries = 0; // Initialize the retry count
 
-    if (!lyrics) {
-      lyrics = "";
-      $('div[class^="Lyrics__Container"]').each((i, elem) => {
-        if (elem && $(elem).text().length !== 0) {
-          const snippet = $(elem)
-            .html()
-            .replace(/<br>/g, "\n")
-            .replace(/<(?!\s*br\s*\/?)[^>]+>/gi, "");
+  while (retries < maxRetries) {
+    try {
+      const { data } = await axios.get(url);
+      const $ = cheerio.load(data);
+      let lyrics = $('div[class="lyrics"]').text().trim();
 
-          lyrics += $("<textarea/>").html(snippet).text().trim() + "\n\n";
-        }
-      });
+      if (!lyrics) {
+        lyrics = "";
+        $('div[class^="Lyrics__Container"]').each((i, elem) => {
+          if (elem && $(elem).text().length !== 0) {
+            const snippet = $(elem)
+              .html()
+              .replace(/<br>/g, "\n")
+              .replace(/<(?!\s*br\s*\/?)[^>]+>/gi, "");
+
+            lyrics += $("<textarea/>").html(snippet).text().trim() + "\n\n";
+          }
+        });
+      }
+      console.log(lyrics);
+      lyrics = lyrics.trim();
+      let lyricsArray = processLyrics(lyrics);
+      console.log(lyricsArray);
+      return lyricsArray || null;
+    } catch (error) {
+      console.error(`Attempt ${retries + 1} failed. Retrying...`);
+      retries++;
+      if (retries === maxRetries) throw error;
     }
-    console.log(lyrics);
-    lyrics = lyrics.trim();
-    let lyricsArray = processLyrics(lyrics);
-    console.log(lyricsArray);
-    return lyricsArray || null;
-  } catch (error) {
-    throw error;
   }
 }
 

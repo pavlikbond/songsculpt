@@ -13,10 +13,16 @@ const ExampleSlide = ({ settings }: Props) => {
           className="p-6 h-full flex flex-col items-center justify-center"
           style={{ color: settings.textColor, backgroundColor: settings.backgroundColor }}
         >
-          <p className="text-[6px] leading-snug sm:text-xs  md:text-sm">Verse 1</p>
+          <p className="text-[6px] leading-snug sm:text-xs  md:text-sm" style={{ fontFamily: settings.fontFamily }}>
+            Verse 1
+          </p>
           {lyrics.split("\n").map((line, index) => {
             return (
-              <p key={index} className="text-[6px] leading-snug sm:text-xs  md:text-sm">
+              <p
+                style={{ fontFamily: settings.fontFamily }}
+                key={index}
+                className="text-[6px] leading-snug sm:text-xs  md:text-sm"
+              >
                 {line}
               </p>
             );

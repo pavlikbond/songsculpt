@@ -42,29 +42,30 @@ export async function GET(req: NextRequest) {
       console.log("No results found");
       return NextResponse.json({}, { status: 404 });
     }
+    return NextResponse.json({ lyrics: lyrics }, { status: 200 });
 
-    let pres = generateppt(lyrics!, song, artist, includeTitleSlide, backgroundColor, textColor);
+    //let pres = generateppt(lyrics!, song, artist, includeTitleSlide, backgroundColor, textColor);
 
-    try {
-      const data: any = await pres.stream();
-      const exportName = "presentation.pptx";
+    // try {
+    //   const data: any = await pres.stream();
+    //   const exportName = "presentation.pptx";
 
-      // Create a new NextResponse object
-      const response = new NextResponse(data, {
-        // Set the status code to 200
-        status: 200,
-        // Set the headers for the response
-        headers: {
-          "Content-disposition": `attachment; filename=${exportName}`,
-          "Content-Length": data.length.toString(),
-        },
-      });
+    //   // Create a new NextResponse object
+    //   const response = new NextResponse(data, {
+    //     // Set the status code to 200
+    //     status: 200,
+    //     // Set the headers for the response
+    //     headers: {
+    //       "Content-disposition": `attachment; filename=${exportName}`,
+    //       "Content-Length": data.length.toString(),
+    //     },
+    //   });
 
-      // Return the response
-      return response;
-    } catch (err) {
-      console.log(err);
-    }
+    //   // Return the response
+    //   return response;
+    // } catch (err) {
+    //   console.log(err);
+    // }
   } catch (error) {
     console.error("Error fetching data from Genius API:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

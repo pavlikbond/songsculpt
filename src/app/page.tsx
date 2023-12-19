@@ -1,4 +1,3 @@
-import Settings from "@/components/Settings";
 import SongQuery from "@/components/SongQuery";
 
 export default function Home() {
