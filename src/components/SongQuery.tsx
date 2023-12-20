@@ -1,11 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import MessageDisplay from "./MessageDisplay";
+
 import SearchBar from "./SearchBar";
 import Settings from "./Settings";
 import ExampleSlide from "./ExampleSlide";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 type Props = {};
 const fontFamilies = [
@@ -33,7 +32,6 @@ const defaultSettings = {
 
 const SongQuery = (props: Props) => {
   const [isClient, setIsClient] = useState(false);
-  const [responseMessage, setResponseMessage] = useState({ message: "", type: "" });
   const [settings, setSettings] = useState(defaultSettings);
 
   useEffect(() => {
@@ -69,18 +67,12 @@ const SongQuery = (props: Props) => {
 
   return (
     <div className="flex flex-col gap-10 w-full mx-auto max-w-2xl my-6 md:my-12">
-      <SearchBar settings={settings} setResponseMessage={setResponseMessage}></SearchBar>
-      <MessageDisplay responseMessage={responseMessage} setResponseMessage={setResponseMessage} />
+      <SearchBar settings={settings}></SearchBar>
+
       <div className="grid gap-6">
         <Settings settings={settings} setSettings={setSettings} fontFamilies={fontFamilies} />
-        <Accordion type="single" collapsible>
-          <AccordionItem value="item-1">
-            <AccordionTrigger>Show Example Slide</AccordionTrigger>
-            <AccordionContent>
-              <ExampleSlide settings={settings} />
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
+
+        <ExampleSlide settings={settings} />
       </div>
     </div>
   );

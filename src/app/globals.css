@@ -99,3 +99,32 @@
   border: none;
   outline: 1px solid lightgrey;
 }
+
+.markdown h1 {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+.markdown h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+.markdown p {
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+.markdown ul {
+  margin-bottom: 1rem;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+footer {
+  margin-top: auto !important;
+}

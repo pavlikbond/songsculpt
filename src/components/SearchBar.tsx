@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import MessageDisplay from "./MessageDisplay";
 import { Input } from "@/components/ui/input";
 import * as z from "zod";
 import axios from "axios";
@@ -9,11 +10,9 @@ import { Settings, Lyrics } from "@/types";
 import generatePpt from "@/lib/generatePPT";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import MessageDisplay from "./MessageDisplay";
 import { processLyrics } from "@/lib/utils";
 type Props = {
   settings: Settings;
-  setResponseMessage: (message: { message: string; type: string }) => void;
 };
 const formSchema = z.object({
   song: z.string().min(1, {
@@ -24,11 +23,12 @@ const formSchema = z.object({
   }),
 });
 
-const SearchBar = ({ setResponseMessage, settings }: Props) => {
+const SearchBar = ({ settings }: Props) => {
   const [song, setSong] = useState("");
   const [artist, setArtist] = useState("");
   const [loading, setLoading] = useState(false);
-
+  const [responseMessage, setResponseMessage] = useState({ message: "", type: "" });
+  const [pasteError, setPasteError] = useState(false);
   const [errorMessages, setErrorMessages] = useState({
     song: "",
     artist: "",
@@ -48,14 +48,15 @@ const SearchBar = ({ setResponseMessage, settings }: Props) => {
   };
 
   const updateLyrics = (e: any) => {
+    pasteError && setPasteError(false);
+    responseMessage.message && setResponseMessage({ message: "", type: "" });
     lyricsRef.current = processLyrics(e.target.value);
   };
 
-  const processPastedLyrics = async () => {
-    console.log(lyricsRef.current);
-
+  const handlePastedLyrics = async () => {
+    pasteError && setPasteError(false);
     if (lyricsRef.current.length === 0) {
-      setResponseMessage({ message: "Please paste lyrics", type: "error" });
+      setResponseMessage({ message: "Field can't be blank", type: "error" });
       return;
     }
     setResponseMessage({ message: "", type: "" });
@@ -82,7 +83,7 @@ const SearchBar = ({ setResponseMessage, settings }: Props) => {
     }
   };
 
-  const handleSubmit = async () => {
+  const handleQuerySubmit = async () => {
     setResponseMessage({ message: "", type: "" });
     const formData = {
       song: song.trim(),
@@ -143,6 +144,14 @@ const SearchBar = ({ setResponseMessage, settings }: Props) => {
     }
   };
 
+  const onSubmit = (type: string) => {
+    if (type === "query") {
+      handleQuerySubmit();
+    } else {
+      handlePastedLyrics();
+    }
+  };
+
   return (
     <div className="w-full">
       <Tabs
@@ -157,8 +166,8 @@ const SearchBar = ({ setResponseMessage, settings }: Props) => {
           <TabsTrigger value="paste">Paste Lyrics</TabsTrigger>
         </TabsList>
         <TabsContent value="query">
-          <div className="flex gap-4 h-fit items-center flex-col md:flex-row ">
-            <div className="grid items-center gap-1.5 ">
+          <div className="flex gap-4 h-fit items-center flex-col md:flex-row py-8">
+            <div className="grid items-center gap-1.5 w-full">
               <label htmlFor="song" className="text-sm">
                 Song name
               </label>
@@ -170,7 +179,7 @@ const SearchBar = ({ setResponseMessage, settings }: Props) => {
               />
               <p className="text-red-500 text-sm h-5 ">{errorMessages.song}</p>
             </div>
-            <div className="grid items-center gap-1.5">
+            <div className="grid items-center gap-1.5 w-full">
               <label htmlFor="artist" className="text-sm">
                 Artist
               </label>
@@ -183,25 +192,45 @@ const SearchBar = ({ setResponseMessage, settings }: Props) => {
               <p className="text-red-500 text-sm h-5">{errorMessages.artist}</p>
             </div>
 
-            <Button onClick={handleSubmit} disabled={loading}>
+            <Button
+              onClick={() => {
+                onSubmit("query");
+              }}
+              disabled={loading}
+            >
               {loading && <Loader2 className="animate-spin mr-2" size={24} />}
               Submit
             </Button>
           </div>
+          {responseMessage.message && <MessageDisplay responseMessage={responseMessage}></MessageDisplay>}
         </TabsContent>
         <TabsContent value="paste">
-          <label htmlFor="lyrics" className="text-sm">
-            Paste Lyrics Below
-          </label>
-          <Textarea onChange={updateLyrics} className="mb-4 mt-2 h-56" placeholder="Lyrics" name="lyrics" id="lyrics" />
-          <MessageDisplay
-            responseMessage={{ type: "info", message: "Add empty lines where a new slide should be made." }}
-          />
-          <div className="flex justify-end">
-            <Button onClick={processPastedLyrics} disabled={loading}>
-              {loading && <Loader2 className="animate-spin mr-2" size={24} />}
-              Submit
-            </Button>
+          <div className="py-8">
+            <label htmlFor="lyrics" className="text-sm">
+              Paste Lyrics Below
+            </label>
+            <Textarea
+              onChange={updateLyrics}
+              className="mb-4 mt-2 h-56"
+              placeholder="Lyrics"
+              name="lyrics"
+              id="lyrics"
+            />
+            <MessageDisplay
+              responseMessage={{ type: "info", message: "Add empty lines where a new slide should be made." }}
+            />
+            {responseMessage.message && <MessageDisplay responseMessage={responseMessage}></MessageDisplay>}
+            <div className="flex justify-end">
+              <Button
+                onClick={() => {
+                  onSubmit("paste");
+                }}
+                disabled={loading}
+              >
+                {loading && <Loader2 className="animate-spin mr-2" size={24} />}
+                Submit
+              </Button>
+            </div>
           </div>
         </TabsContent>
       </Tabs>
