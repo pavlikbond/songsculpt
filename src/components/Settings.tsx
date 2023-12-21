@@ -12,7 +12,7 @@ type Props = {
 
 const Settings = ({ settings, setSettings, fontFamilies }: Props) => {
   return (
-    <Card>
+    <Card className="bg-slate-100">
       <CardHeader>
         <CardTitle className="text-center">Settings</CardTitle>
       </CardHeader>

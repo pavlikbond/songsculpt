@@ -128,3 +128,9 @@ body {
 footer {
   margin-top: auto !important;
 }
+
+body {
+  background-image: url("../../public/wickedbackground.svg");
+  background-repeat: no-repeat;
+  background-size: cover;
+}

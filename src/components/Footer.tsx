@@ -9,15 +9,15 @@ const menus = [
 
 const Footer = (props: Props) => {
   return (
-    <footer className="my-8">
+    <footer className="my-8 text-slate-50">
       <div className="flex justify-center gap-4 my-8">
         {menus.map((item, idx) => (
-          <div key={idx} className="text-gray-600 hover:text-indigo-600">
+          <div key={idx} className=" hover:text-indigo-600">
             <a href={item.path}>{item.title}</a>
           </div>
         ))}
       </div>
-      <div className="text-center text-gray-600">© 2023 SongSculpt</div>
+      <div className="text-center ">© 2023 SongSculpt</div>
     </footer>
   );
 };

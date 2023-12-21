@@ -28,7 +28,7 @@ const MessageDisplay = ({ responseMessage, setResponseMessage }: MessageProps) =
       Icon = MdError;
       break;
     case "info":
-      messageClass = "bg-blue-100 text-blue-500 border-blue-400";
+      messageClass = "bg-blue-200 text-blue-500 border-blue-400";
       Icon = FaCircleInfo;
       break;
     default:

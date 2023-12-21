@@ -11,6 +11,7 @@ import generatePpt from "@/lib/generatePPT";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { processLyrics } from "@/lib/utils";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 type Props = {
   settings: Settings;
 };
@@ -153,77 +154,56 @@ const SearchBar = ({ settings }: Props) => {
   };
 
   return (
-    <div className="w-full">
-      <Tabs
-        defaultValue="query"
-        className="mx-auto"
-        onValueChange={() => {
-          setResponseMessage({ message: "", type: "" });
-        }}
-      >
-        <TabsList className="w-full">
-          <TabsTrigger value="query">Search by Song Name</TabsTrigger>
-          <TabsTrigger value="paste">Paste Lyrics</TabsTrigger>
-        </TabsList>
-        <TabsContent value="query">
-          <div className="flex gap-4 h-fit items-center flex-col md:flex-row py-8">
-            <div className="grid items-center gap-1.5 w-full">
-              <label htmlFor="song" className="text-sm">
-                Song name
-              </label>
-              <Input
-                placeholder="Song Name"
-                id="song"
-                onChange={handlesongUpdate}
-                className={errorMessages.song ? "border border-red-400" : ""}
-              />
-              <p className="text-red-500 text-sm h-5 ">{errorMessages.song}</p>
-            </div>
-            <div className="grid items-center gap-1.5 w-full">
-              <label htmlFor="artist" className="text-sm">
-                Artist
-              </label>
-              <Input
-                placeholder="Astist"
-                id="artist"
-                onChange={handleArtistUpdate}
-                className={errorMessages.artist ? "border border-red-400" : ""}
-              />
-              <p className="text-red-500 text-sm h-5">{errorMessages.artist}</p>
-            </div>
+    <Card className="bg-indigo-100">
+      <CardHeader>
+        <CardTitle className="text-center">Generate PowerPoint</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Tabs
+          defaultValue="query"
+          className="mx-auto"
+          onValueChange={() => {
+            setResponseMessage({ message: "", type: "" });
+          }}
+        >
+          <TabsList className="w-full bg-indigo-300">
+            <TabsTrigger value="query" className="text-white text-xs md:text-base">
+              Search by Song Name
+            </TabsTrigger>
+            <TabsTrigger value="paste" className="text-white text-xs md:text-base">
+              Paste Lyrics
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="query">
+            <div className="flex md:gap-4 h-fit items-center flex-col md:flex-row py-8">
+              <div className="grid items-center gap-1.5 w-full">
+                <label htmlFor="song" className="text-sm">
+                  Song name
+                </label>
+                <Input
+                  placeholder="Song Name"
+                  id="song"
+                  onChange={handlesongUpdate}
+                  className={errorMessages.song ? "border border-red-400" : ""}
+                />
+                <p className="text-red-500 text-sm h-5 ">{errorMessages.song}</p>
+              </div>
+              <div className="grid items-center gap-1.5 w-full">
+                <label htmlFor="artist" className="text-sm">
+                  Artist
+                </label>
+                <Input
+                  placeholder="Astist"
+                  id="artist"
+                  onChange={handleArtistUpdate}
+                  className={errorMessages.artist ? "border border-red-400" : ""}
+                />
+                <p className="text-red-500 text-sm h-5">{errorMessages.artist}</p>
+              </div>
 
-            <Button
-              onClick={() => {
-                onSubmit("query");
-              }}
-              disabled={loading}
-            >
-              {loading && <Loader2 className="animate-spin mr-2" size={24} />}
-              Submit
-            </Button>
-          </div>
-          {responseMessage.message && <MessageDisplay responseMessage={responseMessage}></MessageDisplay>}
-        </TabsContent>
-        <TabsContent value="paste">
-          <div className="py-8">
-            <label htmlFor="lyrics" className="text-sm">
-              Paste Lyrics Below
-            </label>
-            <Textarea
-              onChange={updateLyrics}
-              className="mb-4 mt-2 h-56"
-              placeholder="Lyrics"
-              name="lyrics"
-              id="lyrics"
-            />
-            <MessageDisplay
-              responseMessage={{ type: "info", message: "Add empty lines where a new slide should be made." }}
-            />
-            {responseMessage.message && <MessageDisplay responseMessage={responseMessage}></MessageDisplay>}
-            <div className="flex justify-end">
               <Button
                 onClick={() => {
-                  onSubmit("paste");
+                  onSubmit("query");
                 }}
                 disabled={loading}
               >
@@ -231,10 +211,40 @@ const SearchBar = ({ settings }: Props) => {
                 Submit
               </Button>
             </div>
-          </div>
-        </TabsContent>
-      </Tabs>
-    </div>
+            {responseMessage.message && <MessageDisplay responseMessage={responseMessage}></MessageDisplay>}
+          </TabsContent>
+          <TabsContent value="paste">
+            <div className="py-8">
+              <label htmlFor="lyrics" className="text-sm">
+                Paste Lyrics Below
+              </label>
+              <Textarea
+                onChange={updateLyrics}
+                className="mb-4 mt-2 h-56"
+                placeholder="Lyrics"
+                name="lyrics"
+                id="lyrics"
+              />
+              <MessageDisplay
+                responseMessage={{ type: "info", message: "Add empty lines where a new slide should be made." }}
+              />
+              {responseMessage.message && <MessageDisplay responseMessage={responseMessage}></MessageDisplay>}
+              <div className="flex justify-end">
+                <Button
+                  onClick={() => {
+                    onSubmit("paste");
+                  }}
+                  disabled={loading}
+                >
+                  {loading && <Loader2 className="animate-spin mr-2" size={24} />}
+                  Submit
+                </Button>
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </CardContent>
+    </Card>
   );
 };
 

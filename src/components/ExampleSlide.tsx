@@ -7,7 +7,7 @@ type Props = {
 
 const ExampleSlide = ({ settings }: Props) => {
   return (
-    <Card>
+    <Card className="bg-slate-100">
       <CardHeader>
         <CardTitle className="text-center">Example Slide</CardTitle>
       </CardHeader>

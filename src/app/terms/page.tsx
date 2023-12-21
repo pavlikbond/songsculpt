@@ -1,4 +1,3 @@
-import React from "react";
 import Markdown from "react-markdown";
 type Props = {};
 //style for this page just to style h1, h2 and p tags

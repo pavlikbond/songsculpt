@@ -4,10 +4,10 @@ import * as React from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 
-import { UserButton, useAuth } from "@clerk/nextjs";
+//import { UserButton, useAuth } from "@clerk/nextjs";
 export default function Navbar() {
   const [state, setState] = React.useState(false);
-  const { isLoaded, isSignedIn } = useAuth();
+  //const { isLoaded, isSignedIn } = useAuth();
 
   const menus = [
     { title: "Home", path: "/" },
@@ -15,7 +15,7 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="bg-white w-full border-b md:border-0">
+    <nav className=" w-full border-b md:border-0">
       <div className="items-center px-4 max-w-screen-md mx-auto md:flex md:px-8">
         <div className="flex items-center justify-between py-3 md:py-5 md:block">
           <Link href="/">
@@ -36,7 +36,7 @@ export default function Navbar() {
               <li key={idx}>
                 <Link
                   href={item.path}
-                  className="text-gray-600 rounded p-2 hover:text-indigo-600 hover:bg-indigo-50 transition-all duration-200"
+                  className="text-slate-800 font-semibold rounded p-2 hover:text-indigo-600 hover:bg-indigo-50 transition-all duration-200"
                 >
                   {item.title}
                 </Link>
