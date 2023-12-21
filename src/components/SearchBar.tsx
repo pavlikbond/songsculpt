@@ -62,7 +62,7 @@ const SearchBar = ({ settings }: Props) => {
     }
     setResponseMessage({ message: "", type: "" });
     setLoading(true);
-    const link = document.createElement("a");
+
     try {
       let generatepptResponse = await generatePpt(lyricsRef.current, song, artist, settings);
       if (generatepptResponse) {
@@ -74,12 +74,6 @@ const SearchBar = ({ settings }: Props) => {
       console.log("Error:", error.response.data);
       setResponseMessage({ message: error.response?.data?.error || genericError, type: "error" });
     } finally {
-      // Remove the link from the document body
-      try {
-        document.body.removeChild(link);
-      } catch (error) {
-        console.log(error);
-      }
       setLoading(false);
     }
   };
@@ -106,17 +100,10 @@ const SearchBar = ({ settings }: Props) => {
       });
     }
     setLoading(true);
-    const link = document.createElement("a");
 
     try {
       if (!(song === prevSongRef.current && artist === prevArtistRef.current)) {
-        const response = await axios.get(`/api/genius?song=${song}&artist=${artist}`, {
-          params: {
-            includeTitleSlide: settings.includeTitleSlide,
-            backgroundColor: settings.backgroundColor,
-            textColor: settings.textColor,
-          },
-        });
+        const response = await axios.get(`/api/genius?song=${song}&artist=${artist}`);
         lyricsRef.current = response.data.lyrics || [];
       } else {
         //wait for 1 second
@@ -127,20 +114,17 @@ const SearchBar = ({ settings }: Props) => {
       if (generatepptResponse) {
         setResponseMessage({ message: "Success! Check Your Downloads", type: "success" });
       }
+      prevSongRef.current = song;
+      prevArtistRef.current = artist;
     } catch (error: any) {
       const genericError = "Something went wrong. Please try again.";
       // Handle errors and show an alert or display an error message
       console.log("Error:", error.response.data);
       setResponseMessage({ message: error.response?.data?.error || genericError, type: "error" });
+      //clear song and artist refs so that the next time the user searches, it will be a new search
+      prevSongRef.current = "";
+      prevArtistRef.current = "";
     } finally {
-      prevSongRef.current = song;
-      prevArtistRef.current = artist;
-      // Remove the link from the document body
-      try {
-        document.body.removeChild(link);
-      } catch (error) {
-        console.log(error);
-      }
       setLoading(false);
     }
   };

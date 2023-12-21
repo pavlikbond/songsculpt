@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { type NextRequest } from "next/server";
 import axios from "axios";
 import extractLyrics from "./extractLyrics";
-import generateppt from "./presentation";
+import { addRowToDb } from "./database";
 import getMostRelevantResult from "./getMostRelevantResult";
 
 const BASE_URL = "https://api.genius.com";
@@ -13,9 +13,6 @@ export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
   const song = searchParams.get("song") as string;
   const artist = searchParams.get("artist") as string;
-  const includeTitleSlide = searchParams.get("includeTitleSlide") === "true";
-  const backgroundColor = searchParams.get("backgroundColor") as string;
-  const textColor = searchParams.get("textColor") as string;
   //pull out query params
   console.log(song, artist);
   try {
@@ -29,6 +26,8 @@ export async function GET(req: NextRequest) {
     //const songId = searchResponse.data.response.hits[1].result.id;
     let relevantHit = getMostRelevantResult(searchResponse.data.response.hits, song, artist);
     let lyrics; //: { sectionTitle: string; lyrics: string }[];
+    let url = "";
+    let lyricsString = "";
     if (relevantHit) {
       const songId = relevantHit.result?.id;
       // Step 2: Get lyrics for the song
@@ -36,38 +35,35 @@ export async function GET(req: NextRequest) {
       const lyricsResponse = await axios.get(lyricsUrl, {
         headers: { Authorization: `Bearer ${ACCESS_TOKEN}` },
       });
-      let url = lyricsResponse.data.response.song.url;
-      lyrics = await extractLyrics(url);
+      url = lyricsResponse.data.response.song.url;
+      let extractedResponse = await extractLyrics(url);
+      let lyricsArray = extractedResponse?.lyricsArray;
+      lyricsString = extractedResponse?.lyrics || "";
+      lyrics = lyricsArray;
     } else {
-      console.log("No results found");
-      return NextResponse.json({}, { status: 404 });
+      throw new Error("No results found");
     }
-    return NextResponse.json({ lyrics: lyrics }, { status: 200 });
+    //log out all the variables
 
-    //let pres = generateppt(lyrics!, song, artist, includeTitleSlide, backgroundColor, textColor);
+    let databaseResponse;
+    try {
+      databaseResponse = await addRowToDb(
+        artist,
+        song,
+        relevantHit.result?.artist_names,
+        relevantHit.result?.full_title,
+        url,
+        lyricsString,
+        null
+      );
+    } catch (error) {
+      console.log("Error adding row to database:", error);
+    }
 
-    // try {
-    //   const data: any = await pres.stream();
-    //   const exportName = "presentation.pptx";
-
-    //   // Create a new NextResponse object
-    //   const response = new NextResponse(data, {
-    //     // Set the status code to 200
-    //     status: 200,
-    //     // Set the headers for the response
-    //     headers: {
-    //       "Content-disposition": `attachment; filename=${exportName}`,
-    //       "Content-Length": data.length.toString(),
-    //     },
-    //   });
-
-    //   // Return the response
-    //   return response;
-    // } catch (err) {
-    //   console.log(err);
-    // }
-  } catch (error) {
+    return NextResponse.json({ lyrics: lyrics, ID: databaseResponse }, { status: 200 });
+  } catch (error: any) {
     console.error("Error fetching data from Genius API:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    //return message from thrown error
+    return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 404 });
   }
 }

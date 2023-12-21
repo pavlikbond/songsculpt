@@ -27,11 +27,11 @@ export default async function extractLyrics(url) {
           }
         });
       }
-      console.log(lyrics);
+
       lyrics = lyrics.trim();
       let lyricsArray = processLyrics(lyrics);
       console.log(lyricsArray);
-      return lyricsArray || null;
+      return { lyricsArray, lyrics } || null;
     } catch (error) {
       console.error(`Attempt ${retries + 1} failed. Retrying...`);
       retries++;
