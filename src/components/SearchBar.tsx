@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { processLyrics } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { event } from "@/lib/gtag";
 type Props = {
   settings: Settings;
 };
@@ -55,6 +56,12 @@ const SearchBar = ({ settings }: Props) => {
   };
 
   const handlePastedLyrics = async () => {
+    event({
+      action: "click", // The type of interaction you want to track, e.g., 'click'
+      category: "Button", // The object that was interacted with, e.g., 'Button'
+      label: "paste_submit", // Useful for categorizing events, e.g., 'paste_submit'
+      value: "1", // A numeric value associated with the event, e.g., '1'
+    });
     pasteError && setPasteError(false);
     if (lyricsRef.current.length === 0) {
       setResponseMessage({ message: "Field can't be blank", type: "error" });
@@ -79,6 +86,12 @@ const SearchBar = ({ settings }: Props) => {
   };
 
   const handleQuerySubmit = async () => {
+    event({
+      action: "click", // The type of interaction you want to track, e.g., 'click'
+      category: "Button", // The object that was interacted with, e.g., 'Button'
+      label: "query_submit", // Useful for categorizing events, e.g., 'paste_submit'
+      value: "1", // A numeric value associated with the event, e.g., '1'
+    });
     setResponseMessage({ message: "", type: "" });
     const formData = {
       song: song.trim(),
@@ -177,7 +190,7 @@ const SearchBar = ({ settings }: Props) => {
                   Artist
                 </label>
                 <Input
-                  placeholder="Astist"
+                  placeholder="Artist"
                   id="artist"
                   onChange={handleArtistUpdate}
                   className={errorMessages.artist ? "border border-red-400" : ""}
