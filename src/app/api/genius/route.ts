@@ -41,6 +41,11 @@ export async function GET(req: NextRequest) {
       lyricsString = extractedResponse?.lyrics || "";
       lyrics = lyricsArray;
     } else {
+      try {
+        await addRowToDb(artist, song, null, null, null, null, null);
+      } catch (error) {
+        console.log("Error adding row to database:", error);
+      }
       throw new Error("No results found");
     }
     //log out all the variables
