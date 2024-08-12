@@ -82,9 +82,9 @@ const SongQuery = (props: Props) => {
           <h1 className="text-xl md:text-5xl font-bold text-indigo-900 text-center mb-4 !leading-snug">
             Turn Lyrics into PowerPoint Presentations!
           </h1>
-          <p className="text-sm md:text-xl text-center text-slate-700">
+          {/* <p className="text-sm md:text-xl text-center text-slate-700">
             {isClient && window.innerWidth > 768 ? desktopHero : mobileHero}
-          </p>
+          </p> */}
         </section>
         <SearchBar settings={settings}></SearchBar>
       </main>
@@ -102,6 +102,6 @@ const desktopHero = `Our innovative application transforms song lyrics into capt
 pasting lyrics directly or searching by song title and artist name, creating engaging presentations has
 never been easier!`;
 
-const mobileHero = `Our innovative application transforms song lyrics into captivating PowerPoint presentations.`;
+const mobileHero = `Our innovative application transforms song lyrics into PowerPoint presentations.`;
 
 export default SongQuery;
