@@ -12,7 +12,7 @@ type Props = {
   fontFamilies: string[];
 };
 
-const numberOfLinesOptions = ["1000", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
+const numberOfLinesOptions = ["100", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
 
 const SettingsBox = ({ settings, setSettings, fontFamilies }: Props) => {
   return (
