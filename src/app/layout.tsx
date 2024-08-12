@@ -5,7 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Script from "next/script";
 import { Analytics } from "@vercel/analytics/react";
-
+import { ReactQueryProvider } from "./contexts/react-query";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -14,16 +14,17 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <Script
-        strategy="lazyOnload"
-        src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`}
-      />
-      <Script
-        id="gtag-init"
-        strategy="afterInteractive"
-        dangerouslySetInnerHTML={{
-          __html: `
+    <ReactQueryProvider>
+      <html lang="en">
+        <Script
+          strategy="lazyOnload"
+          src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`}
+        />
+        <Script
+          id="gtag-init"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
           window.dataLayer = window.dataLayer || [];
           function gtag() {dataLayer.push(arguments);}
           gtag('js', new Date());
@@ -31,15 +32,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             page_path: window.location.pathname,
           });
         `,
-        }}
-      />
-      <body className={inter.className}>
-        {" "}
-        <Navbar />
-        {children}
-        <Footer />
-        <Analytics />
-      </body>
-    </html>
+          }}
+        />
+
+        <body className={inter.className}>
+          {" "}
+          <Navbar />
+          {children}
+          <Footer />
+          <Analytics />
+        </body>
+      </html>
+    </ReactQueryProvider>
   );
 }

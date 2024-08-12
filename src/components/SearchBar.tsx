@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { processLyrics } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { event } from "@/lib/gtag";
+import { useMutation } from "@tanstack/react-query";
 type Props = {
   settings: Settings;
 };
@@ -25,44 +26,46 @@ const formSchema = z.object({
   }),
 });
 
+const logEvent = (label: string) => {
+  event({
+    action: "click",
+    category: "Button",
+    label: label,
+    value: "1",
+  });
+};
 const SearchBar = ({ settings }: Props) => {
   const [song, setSong] = useState("");
   const [artist, setArtist] = useState("");
   const [loading, setLoading] = useState(false);
   const [responseMessage, setResponseMessage] = useState({ message: "", type: "" });
-  const [pasteError, setPasteError] = useState(false);
+  const formChanged = useRef(false);
   const [errorMessages, setErrorMessages] = useState({
     song: "",
     artist: "",
   });
 
   // Initialize refs for song and artist
-  const prevSongRef = useRef<string | undefined>();
-  const prevArtistRef = useRef<string | undefined>();
   const lyricsRef = useRef<Lyrics>([]);
 
   const handleArtistUpdate = (e: any) => {
-    setArtist(e.target.value);
+    setArtist(e.target.value.trim());
+    formChanged.current = true;
   };
 
   const handlesongUpdate = (e: any) => {
-    setSong(e.target.value);
+    setSong(e.target.value.trim());
+    formChanged.current = true;
   };
 
   const updateLyrics = (e: any) => {
-    pasteError && setPasteError(false);
     responseMessage.message && setResponseMessage({ message: "", type: "" });
     lyricsRef.current = processLyrics(e.target.value);
   };
 
   const handlePastedLyrics = async () => {
-    event({
-      action: "click", // The type of interaction you want to track, e.g., 'click'
-      category: "Button", // The object that was interacted with, e.g., 'Button'
-      label: "paste_submit", // Useful for categorizing events, e.g., 'paste_submit'
-      value: "1", // A numeric value associated with the event, e.g., '1'
-    });
-    pasteError && setPasteError(false);
+    logEvent("paste_lyrics");
+
     if (lyricsRef.current.length === 0) {
       setResponseMessage({ message: "Field can't be blank", type: "error" });
       return;
@@ -85,60 +88,61 @@ const SearchBar = ({ settings }: Props) => {
     }
   };
 
-  const handleQuerySubmit = async () => {
-    event({
-      action: "click", // The type of interaction you want to track, e.g., 'click'
-      category: "Button", // The object that was interacted with, e.g., 'Button'
-      label: "query_submit", // Useful for categorizing events, e.g., 'paste_submit'
-      value: "1", // A numeric value associated with the event, e.g., '1'
-    });
-    setResponseMessage({ message: "", type: "" });
-    const formData = {
-      song: song.trim(),
-      artist: artist.trim(),
-    };
-    const results = formSchema.safeParse(formData);
-    if (!results.success) {
-      let issues = results.error.issues;
-      setErrorMessages({
-        song: issues.find((issue) => issue.path[0] === "song")?.message || "",
-        artist: issues.find((issue) => issue.path[0] === "artist")?.message || "",
-      });
+  const mutation = useMutation({
+    mutationKey: ["getLyrics"],
+    mutationFn: async (formData: any) => {
+      const response = await axios.put(`/api/genius`, formData);
+      return response.data;
+    },
+    onSuccess: async (data) => {
+      lyricsRef.current = data.lyrics || [];
+      createPpt();
+    },
+    onSettled: () => {
+      formChanged.current = false;
+    },
+  });
 
-      return;
-    } else {
-      setErrorMessages({
-        song: "",
-        artist: "",
-      });
+  async function createPpt() {
+    let generatepptResponse = await generatePpt(lyricsRef.current, song, artist, settings);
+    if (generatepptResponse) {
+      setResponseMessage({ message: "Success! Check Your Downloads", type: "success" });
     }
-    setLoading(true);
+  }
 
-    try {
-      if (!(song === prevSongRef.current && artist === prevArtistRef.current)) {
-        const response = await axios.get(`/api/genius?song=${song}&artist=${artist}`);
-        lyricsRef.current = response.data.lyrics || [];
-      } else {
-        //wait for 1 second
-        await new Promise((r) => setTimeout(r, 1000));
-      }
-      //then generate the ppt
-      let generatepptResponse = await generatePpt(lyricsRef.current, song, artist, settings);
-      if (generatepptResponse) {
-        setResponseMessage({ message: "Success! Check Your Downloads", type: "success" });
-      }
-      prevSongRef.current = song;
-      prevArtistRef.current = artist;
-    } catch (error: any) {
-      const genericError = "Something went wrong. Please try again.";
-      // Handle errors and show an alert or display an error message
-      console.log("Error:", error.response.data);
-      setResponseMessage({ message: error.response?.data?.error || genericError, type: "error" });
-      //clear song and artist refs so that the next time the user searches, it will be a new search
-      prevSongRef.current = "";
-      prevArtistRef.current = "";
-    } finally {
-      setLoading(false);
+  // Separate validation function
+  const validateForm = (data: { song: string; artist: string }) => {
+    const results = formSchema.safeParse(data);
+    if (!results.success) {
+      const errorMessages = results.error.flatten().fieldErrors;
+      return {
+        isValid: false,
+        errors: {
+          song: errorMessages.song?.[0] || "",
+          artist: errorMessages.artist?.[0] || "",
+        },
+      };
+    }
+    return { isValid: true, errors: { song: "", artist: "" } };
+  };
+
+  const handleQuerySubmit = async () => {
+    logEvent("query_submit");
+    setResponseMessage({ message: "", type: "" });
+    const { isValid, errors } = validateForm({ song, artist });
+    setErrorMessages(errors);
+
+    if (!isValid) {
+      return;
+    }
+
+    if (!formChanged.current) {
+      createPpt();
+    } else {
+      mutation.mutate({
+        song,
+        artist,
+      });
     }
   };
 
@@ -202,9 +206,9 @@ const SearchBar = ({ settings }: Props) => {
                 onClick={() => {
                   onSubmit("query");
                 }}
-                disabled={loading}
+                disabled={loading || mutation.isPending}
               >
-                {loading && <Loader2 className="animate-spin mr-2" size={24} />}
+                {loading || (mutation.isPending && <Loader2 className="animate-spin mr-2" size={24} />)}
                 Submit
               </Button>
             </div>
@@ -231,9 +235,9 @@ const SearchBar = ({ settings }: Props) => {
                   onClick={() => {
                     onSubmit("paste");
                   }}
-                  disabled={loading}
+                  disabled={loading || mutation.isPending}
                 >
-                  {loading && <Loader2 className="animate-spin mr-2" size={24} />}
+                  {loading || (mutation.isPending && <Loader2 className="animate-spin mr-2" size={24} />)}
                   Submit
                 </Button>
               </div>

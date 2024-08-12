@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 
 import SearchBar from "./SearchBar";
-import Settings from "./Settings";
+import SettingsBox from "./Settings";
 import ExampleSlide from "./ExampleSlide";
 
 type Props = {};
@@ -28,6 +28,9 @@ const defaultSettings = {
   backgroundColor: "#dbdbdb",
   textColor: "#000000",
   fontFamily: fontFamilies[0],
+  includeSectionTitles: true,
+  textShadow: false,
+  linesPerSlide: "100",
 };
 
 const SongQuery = (props: Props) => {
@@ -36,7 +39,14 @@ const SongQuery = (props: Props) => {
 
   useEffect(() => {
     if (isClient) {
-      setSettings(getSettings());
+      const localStorageSettings = getSettings();
+
+      const updatedSettings = {
+        ...defaultSettings,
+        ...localStorageSettings,
+      };
+
+      setSettings(updatedSettings);
     }
   }, [isClient]);
 
@@ -80,7 +90,7 @@ const SongQuery = (props: Props) => {
       </main>
 
       <div className="grid gap-6">
-        <Settings settings={settings} setSettings={setSettings} fontFamilies={fontFamilies} />
+        <SettingsBox settings={settings} setSettings={setSettings} fontFamilies={fontFamilies} />
 
         <ExampleSlide settings={settings} />
       </div>

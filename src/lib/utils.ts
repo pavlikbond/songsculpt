@@ -9,25 +9,26 @@ export function processLyrics(lyricsString: string): Lyrics {
   if (!lyricsString) {
     return [];
   }
+
   const sections = lyricsString.split("\n\n");
 
   const lyricsArray = sections.map((section) => {
     let sectionTitle = null;
     let lyrics = section.trim();
 
-    // Check if the section starts with a known keyword
-    const keywordMatch = section.match(/^([A-Z]+\s\d*)/);
-    if (keywordMatch) {
-      sectionTitle = keywordMatch[1].replace(/\n/g, ""); // Remove newline characters
-      lyrics = section.replace(keywordMatch[0], "").trim();
-    } else {
-      // Check if the section has square brackets
-      const bracketMatch = section.match(/\[(.*?)\]/);
-      if (bracketMatch) {
-        sectionTitle = bracketMatch[1].replace(/\n/g, ""); // Remove newline characters
-        lyrics = section.replace(/\[(.*?)\]/, "").trim();
-      }
-    }
+    // // Check if the section starts with a known keyword
+    // const keywordMatch = section.match(/^([A-Z]+\s\d*)/);
+    // if (keywordMatch) {
+    //   sectionTitle = keywordMatch[1].replace(/\n/g, ""); // Remove newline characters
+    //   lyrics = section.replace(keywordMatch[0], "").trim();
+    // } else {
+    //   // Check if the section has square brackets
+    //   const bracketMatch = section.match(/\[(.*?)\]/);
+    //   if (bracketMatch) {
+    //     sectionTitle = bracketMatch[1].replace(/\n/g, ""); // Remove newline characters
+    //     lyrics = section.replace(/\[(.*?)\]/, "").trim();
+    //   }
+    // }
 
     return {
       sectionTitle,

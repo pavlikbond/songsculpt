@@ -3,9 +3,12 @@ export type Settings = {
   backgroundColor: string;
   textColor: string;
   fontFamily: string;
+  includeSectionTitles: boolean;
+  textShadow: boolean;
+  linesPerSlide: string;
 };
 
 export type Lyrics = {
-  sectionTitle: string | null;
+  sectionTitle?: string | null;
   lyrics: string;
 }[];

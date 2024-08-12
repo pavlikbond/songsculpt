@@ -1,6 +1,7 @@
 import React from "react";
 import { Settings } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 type Props = {
   settings: Settings;
 };
@@ -17,20 +18,27 @@ const ExampleSlide = ({ settings }: Props) => {
             className="p-6 h-full flex flex-col items-center justify-center"
             style={{ color: settings.textColor, backgroundColor: settings.backgroundColor }}
           >
-            <p className="text-[6px] leading-snug sm:text-xs  md:text-sm" style={{ fontFamily: settings.fontFamily }}>
-              Verse 1
-            </p>
-            {lyrics.split("\n").map((line, index) => {
-              return (
-                <p
-                  style={{ fontFamily: settings.fontFamily }}
-                  key={index}
-                  className="text-[6px] leading-snug sm:text-xs  md:text-sm"
-                >
-                  {line}
-                </p>
-              );
-            })}
+            {settings.includeSectionTitles && (
+              <p className="text-[6px] leading-snug sm:text-xs  md:text-sm" style={{ fontFamily: settings.fontFamily }}>
+                Verse 1
+              </p>
+            )}
+            {lyrics
+              .split("\n")
+              .slice(0, parseInt(settings.linesPerSlide) + 1 || 100)
+              .map((line, index) => {
+                return (
+                  <p
+                    style={{ fontFamily: settings.fontFamily }}
+                    key={index}
+                    className={cn("text-[6px] leading-snug sm:text-xs  md:text-sm", {
+                      "drop-shadow": settings.textShadow,
+                    })}
+                  >
+                    {line}
+                  </p>
+                );
+              })}
           </div>
         </div>
       </CardContent>

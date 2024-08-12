@@ -1,10 +1,45 @@
 import pptxgen from "pptxgenjs";
 import { Settings } from "@/types";
 import { Lyrics } from "@/types";
+
+const shadow = {
+  type: "outer",
+  color: "666666",
+  blur: 3,
+  offset: 1,
+  angle: 45,
+};
+
 //export function that creates a presenation given the lyrics
-export default function generateppt(lyrics: Lyrics, song: string, artist: string, settings: Settings) {
-  let { includeTitleSlide, backgroundColor, textColor, fontFamily = "arial" } = settings;
+export default async function generateppt(lyrics: Lyrics, song: string, artist: string, settings: Settings) {
+  let {
+    includeTitleSlide,
+    backgroundColor,
+    textColor,
+    fontFamily = "arial",
+    includeSectionTitles,
+    textShadow,
+    linesPerSlide,
+  } = settings;
+
   let pres = new pptxgen();
+  const linesPerSlideNum: number = parseInt(linesPerSlide) || 100;
+
+  let newLyrics = [];
+  //split lyrics into sections based on new lines
+  for (let i = 0; i < lyrics.length; i++) {
+    lyrics[i].lyrics = lyrics[i].lyrics?.replaceAll("\r", "\n").replaceAll("\n\n", "\n");
+    let splitLyrics = lyrics[i].lyrics.split("\n");
+    for (let j = 0; j < splitLyrics.length; j += linesPerSlideNum) {
+      newLyrics.push({
+        sectionTitle: j === 0 ? lyrics[i].sectionTitle : null,
+        lyrics: splitLyrics.slice(j, j + linesPerSlideNum).join("\n"),
+      });
+    }
+  }
+
+  lyrics = newLyrics;
+
   //add title slide with song name and artist, center the title inside of the slide and make it big
   if (includeTitleSlide) {
     let slide = pres.addSlide();
@@ -19,7 +54,8 @@ export default function generateppt(lyrics: Lyrics, song: string, artist: string
       //set texboxText to be first line in lyrics
       textboxText = lyrics[0].lyrics.split("\n")[0];
     }
-    slide.addText(textboxText, {
+
+    const slideSettings = {
       y: "30%",
       w: "100%",
       h: "20%",
@@ -28,7 +64,12 @@ export default function generateppt(lyrics: Lyrics, song: string, artist: string
       color: textColor,
       align: "center",
       wrap: true,
-    });
+    } as any;
+
+    if (textShadow) {
+      slideSettings["shadow"] = { ...shadow };
+    }
+    slide.addText(textboxText, slideSettings);
   }
   // 2. Add a Slide
   for (let lyric of lyrics) {
@@ -36,8 +77,8 @@ export default function generateppt(lyrics: Lyrics, song: string, artist: string
     slide.background = {
       fill: backgroundColor,
     };
-    let textboxText = (lyric.sectionTitle ? lyric.sectionTitle + "\n" : "") + lyric.lyrics;
-    slide.addText(textboxText, {
+    let textboxText = (lyric?.sectionTitle && includeSectionTitles ? lyric?.sectionTitle + "\n" : "") + lyric.lyrics;
+    const slideSettings = {
       x: 0,
       y: 0,
       w: "100%",
@@ -47,7 +88,14 @@ export default function generateppt(lyrics: Lyrics, song: string, artist: string
       color: textColor,
       align: "center",
       autoFit: true,
-    });
+    } as any;
+
+    if (textShadow) {
+      //need to make copy of shadow object because it gets modified with each loop
+      slideSettings["shadow"] = { ...shadow };
+    }
+
+    slide.addText(textboxText, slideSettings);
   }
   // 3. Save the Presentation
   let fileName = "";
@@ -66,6 +114,7 @@ export default function generateppt(lyrics: Lyrics, song: string, artist: string
       return true;
     })
     .catch((err) => {
+      console.error(err);
       return false;
     });
 }

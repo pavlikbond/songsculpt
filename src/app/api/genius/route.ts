@@ -2,18 +2,18 @@ import { NextResponse } from "next/server";
 import { type NextRequest } from "next/server";
 import axios from "axios";
 import extractLyrics from "./extractLyrics";
-import { addRowToDb } from "./database";
 import getMostRelevantResult from "./getMostRelevantResult";
 
 const BASE_URL = "https://api.genius.com";
 const ACCESS_TOKEN = process.env.GENIUS_ACCESS_TOKEN;
 
 //handler for getting lyrics from musixmatch api using fetch
-export async function GET(req: NextRequest) {
-  const searchParams = req.nextUrl.searchParams;
-  const song = searchParams.get("song") as string;
-  const artist = searchParams.get("artist") as string;
-  //pull out query params
+export async function PUT(req: NextRequest) {
+  console.log("PUT /api/genius");
+  //get song and artist from request body
+  const body = await req.json();
+  const { song, artist } = body;
+
   console.log(song, artist);
   try {
     // Step 1: Search for the song
@@ -41,31 +41,11 @@ export async function GET(req: NextRequest) {
       lyricsString = extractedResponse?.lyrics || "";
       lyrics = lyricsArray;
     } else {
-      try {
-        await addRowToDb(artist, song, null, null, null, null, null);
-      } catch (error) {
-        console.log("Error adding row to database:", error);
-      }
       throw new Error("No results found");
     }
     //log out all the variables
 
-    let databaseResponse;
-    try {
-      databaseResponse = await addRowToDb(
-        artist,
-        song,
-        relevantHit.result?.artist_names,
-        relevantHit.result?.full_title,
-        url,
-        lyricsString,
-        null
-      );
-    } catch (error) {
-      console.log("Error adding row to database:", error);
-    }
-
-    return NextResponse.json({ lyrics: lyrics, ID: databaseResponse }, { status: 200 });
+    return NextResponse.json({ lyrics: lyrics }, { status: 200 });
   } catch (error: any) {
     console.error("Error fetching data from Genius API:", error);
     //return message from thrown error
