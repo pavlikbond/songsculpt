@@ -4,10 +4,8 @@ import * as React from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 
-//import { UserButton, useAuth } from "@clerk/nextjs";
 export default function Navbar() {
   const [state, setState] = React.useState(false);
-  //const { isLoaded, isSignedIn } = useAuth();
 
   const menus = [
     { title: "Home", path: "/" },
@@ -42,17 +40,6 @@ export default function Navbar() {
                 </Link>
               </li>
             ))}
-            {/* {isLoaded && isSignedIn ? (
-              <li>
-                <UserButton />
-              </li>
-            ) : (
-              <li>
-                <Link href="/sign-in" className="bg-slate-200 p-2 rounded hover:text-indigo-600">
-                  Sign In
-                </Link>
-              </li>
-            )} */}
           </ul>
         </div>
       </div>

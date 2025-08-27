@@ -14,6 +14,7 @@ import { processLyrics } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { event } from "@/lib/gtag";
 import { useMutation } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 type Props = {
   settings: Settings;
 };
@@ -98,6 +99,11 @@ const SearchBar = ({ settings }: Props) => {
       lyricsRef.current = data.lyrics || [];
       createPpt();
     },
+    onError: (error: any) => {
+      toast.error("Something went wrong, please try again", {
+        duration: 4000,
+      });
+    },
     onSettled: () => {
       formChanged.current = false;
     },
@@ -107,6 +113,13 @@ const SearchBar = ({ settings }: Props) => {
     let generatepptResponse = await generatePpt(lyricsRef.current, song, artist, settings);
     if (generatepptResponse) {
       setResponseMessage({ message: "Success! Check Your Downloads", type: "success" });
+      toast.success("PowerPoint created, check downloads", {
+        duration: 4000,
+      });
+    } else {
+      toast.error("Something went wrong, please try again", {
+        duration: 4000,
+      });
     }
   }
 
