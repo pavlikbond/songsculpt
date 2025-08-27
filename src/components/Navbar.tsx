@@ -13,15 +13,20 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className=" w-full border-b md:border-0">
+    <nav className="w-full border-b-2 border-[var(--color-accent)] bg-[var(--color-primary)]">
       <div className="items-center px-4 max-w-screen-md mx-auto md:flex md:px-8">
         <div className="flex items-center justify-between py-3 md:py-5 md:block">
           <Link href="/">
-            <h1 className="text-3xl font-bold text-purple-600">SongSculpt</h1>
+            <h1
+              className="text-3xl font-bold text-[var(--color-accent-dark)]"
+              style={{ fontFamily: "Pacifico, cursive" }}
+            >
+              SongSculpt
+            </h1>
           </Link>
           <div className="md:hidden">
             <button
-              className="text-gray-700 outline-none p-2 rounded-md focus:border-gray-400 focus:border"
+              className="text-[var(--color-accent-dark)] outline-none p-2 rounded-md focus:border-[var(--color-accent)] focus:border"
               onClick={() => setState(!state)}
             >
               {state ? <X size={24} /> : <Menu size={24} />}
@@ -34,7 +39,7 @@ export default function Navbar() {
               <li key={idx}>
                 <Link
                   href={item.path}
-                  className="text-slate-800 font-semibold rounded p-2 hover:text-indigo-600 hover:bg-indigo-50 transition-all duration-200"
+                  className="text-[var(--color-accent-dark)] font-semibold rounded p-2 hover:text-[var(--color-accent)] hover:bg-[var(--color-primary)] transition-all duration-200"
                 >
                   {item.title}
                 </Link>

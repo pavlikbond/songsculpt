@@ -8,13 +8,13 @@ import { Loader2 } from "lucide-react";
 import { Settings, Lyrics } from "@/types";
 //import generate ppt from lib folder
 import generatePpt from "@/lib/generatePPT";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { processLyrics } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { event } from "@/lib/gtag";
 import { useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
+
 type Props = {
   settings: Settings;
 };
@@ -40,6 +40,7 @@ const SearchBar = ({ settings }: Props) => {
   const [artist, setArtist] = useState("");
   const [loading, setLoading] = useState(false);
   const [responseMessage, setResponseMessage] = useState({ message: "", type: "" });
+  const [activeMethod, setActiveMethod] = useState("query");
   const formChanged = useRef(false);
   const [errorMessages, setErrorMessages] = useState({
     song: "",
@@ -168,95 +169,120 @@ const SearchBar = ({ settings }: Props) => {
   };
 
   return (
-    <Card className="bg-indigo-100">
-      <CardHeader>
-        <CardTitle className="text-center">Generate PowerPoint</CardTitle>
+    <Card className="bg-[var(--color-primary)] border-[var(--color-accent)]">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-center text-[var(--color-text-dark)]">Generate PowerPoint</CardTitle>
       </CardHeader>
       <CardContent>
-        <Tabs
-          defaultValue="query"
-          className="mx-auto"
-          onValueChange={() => {
-            setResponseMessage({ message: "", type: "" });
-          }}
-        >
-          <TabsList className="w-full bg-indigo-300">
-            <TabsTrigger value="query" className="text-white text-xs md:text-base">
-              Search by Song Name
-            </TabsTrigger>
-            <TabsTrigger value="paste" className="text-white text-xs md:text-base">
-              Paste Lyrics
-            </TabsTrigger>
-          </TabsList>
-          <TabsContent value="query">
-            <div className="flex md:gap-4 h-fit items-center flex-col md:flex-row py-8">
-              <div className="grid items-center gap-1.5 w-full">
-                <label htmlFor="song" className="text-sm">
-                  Song name
-                </label>
-                <Input
-                  placeholder="Song Name"
-                  id="song"
-                  onChange={handlesongUpdate}
-                  className={errorMessages.song ? "border border-red-400" : ""}
-                />
-                <p className="text-red-500 text-sm h-5 ">{errorMessages.song}</p>
-              </div>
-              <div className="grid items-center gap-1.5 w-full">
-                <label htmlFor="artist" className="text-sm">
-                  Artist
-                </label>
-                <Input
-                  placeholder="Artist"
-                  id="artist"
-                  onChange={handleArtistUpdate}
-                  className={errorMessages.artist ? "border border-red-400" : ""}
-                />
-                <p className="text-red-500 text-sm h-5">{errorMessages.artist}</p>
-              </div>
+        {/* Input Method Selection */}
+        <div className="flex justify-center mb-6">
+          {/* HTML Radio Buttons */}
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex items-center space-x-2">
+              <input
+                type="radio"
+                id="query"
+                name="method"
+                value="query"
+                checked={activeMethod === "query"}
+                onChange={(e) => {
+                  setActiveMethod(e.target.value);
+                }}
+                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500"
+              />
+              <label htmlFor="query" className="text-[var(--color-text-dark)] cursor-pointer">
+                Search by Song Name
+              </label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <input
+                type="radio"
+                id="paste"
+                name="method"
+                value="paste"
+                checked={activeMethod === "paste"}
+                onChange={(e) => {
+                  setActiveMethod(e.target.value);
+                }}
+                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500"
+              />
+              <label htmlFor="paste" className="text-[var(--color-text-dark)] cursor-pointer">
+                Paste Lyrics
+              </label>
+            </div>
+          </div>
+        </div>
+        {/* Query Method */}
+        {activeMethod === "query" && (
+          <div className="flex md:gap-4 h-fit items-center flex-col md:flex-row py-4">
+            <div className="grid items-center gap-1.5 w-full">
+              <label htmlFor="song" className="text-sm text-[var(--color-text-dark)]">
+                Song name
+              </label>
+              <Input
+                placeholder="Song Name"
+                id="song"
+                onChange={handlesongUpdate}
+                className={errorMessages.song ? "border border-red-400" : "border-[var(--color-accent)]"}
+              />
+              <p className="text-red-500 text-sm h-5 ">{errorMessages.song}</p>
+            </div>
+            <div className="grid items-center gap-1.5 w-full">
+              <label htmlFor="artist" className="text-sm text-[var(--color-text-dark)]">
+                Artist
+              </label>
+              <Input
+                placeholder="Artist"
+                id="artist"
+                onChange={handleArtistUpdate}
+                className={errorMessages.artist ? "border border-red-400" : "border-[var(--color-accent)]"}
+              />
+              <p className="text-red-500 text-sm h-5">{errorMessages.artist}</p>
+            </div>
 
+            <Button
+              onClick={() => {
+                onSubmit("query");
+              }}
+              disabled={loading || mutation.isPending}
+              className="bg-[var(--color-accent-dark)] hover:bg-[var(--color-accent)] text-white"
+            >
+              {loading || (mutation.isPending && <Loader2 className="animate-spin mr-2" size={24} />)}
+              Submit
+            </Button>
+          </div>
+        )}
+
+        {/* Paste Method */}
+        {activeMethod === "paste" && (
+          <div className="py-4">
+            <label htmlFor="lyrics" className="text-sm text-[var(--color-text-dark)]">
+              Paste Lyrics Below
+            </label>
+            <Textarea
+              onChange={updateLyrics}
+              className="mb-4 mt-2 h-48 border-[var(--color-accent)]"
+              placeholder="Lyrics"
+              name="lyrics"
+              id="lyrics"
+            />
+            <MessageDisplay
+              responseMessage={{ type: "info", message: "Add empty lines where a new slide should be made." }}
+            />
+            <div className="flex justify-end">
               <Button
                 onClick={() => {
-                  onSubmit("query");
+                  onSubmit("paste");
                 }}
                 disabled={loading || mutation.isPending}
+                className="bg-[var(--color-accent-dark)] hover:bg-[var(--color-accent)] text-white"
               >
                 {loading || (mutation.isPending && <Loader2 className="animate-spin mr-2" size={24} />)}
                 Submit
               </Button>
             </div>
-            {responseMessage.message && <MessageDisplay responseMessage={responseMessage}></MessageDisplay>}
-          </TabsContent>
-          <TabsContent value="paste">
-            <div className="py-8">
-              <label htmlFor="lyrics" className="text-sm">
-                Paste Lyrics Below
-              </label>
-              <Textarea
-                onChange={updateLyrics}
-                className="mb-4 mt-2 h-56"
-                placeholder="Lyrics"
-                name="lyrics"
-                id="lyrics"
-              />
-              <MessageDisplay
-                responseMessage={{ type: "info", message: "Add empty lines where a new slide should be made." }}
-              />
-              {responseMessage.message && <MessageDisplay responseMessage={responseMessage}></MessageDisplay>}
-              <div className="flex justify-end">
-                <Button
-                  onClick={() => {
-                    onSubmit("paste");
-                  }}
-                  disabled={loading || mutation.isPending}
-                >
-                  {loading || (mutation.isPending && <Loader2 className="animate-spin mr-2" size={24} />)}
-                  Submit
-                </Button>
-              </div>
-            </div>
-          </TabsContent>
-        </Tabs>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

@@ -8,12 +8,12 @@ type Props = {
 
 const ExampleSlide = ({ settings }: Props) => {
   return (
-    <Card className="bg-slate-100">
-      <CardHeader>
-        <CardTitle className="text-center">Example Slide</CardTitle>
+    <Card className="bg-[var(--color-primary)] border-[var(--color-accent)]">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-center text-[var(--color-text-dark)]">Example Slide</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="overflow-hidden border rounded shadow border-slate-600 text-center w-full aspect-video">
+        <div className="overflow-hidden border rounded shadow border-[var(--color-accent)] text-center w-full aspect-video">
           <div
             className="p-6 h-full flex flex-col items-center justify-center"
             style={{ color: settings.textColor, backgroundColor: settings.backgroundColor }}

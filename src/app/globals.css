@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Faculty+Glyphic&family=Pacifico&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -33,6 +35,13 @@
     --ring: 222.2 84% 4.9%;
 
     --radius: 0.5rem;
+
+    /* Custom color scheme - Blue and Grey palette */
+    --color-primary: #98c1d9; /* Powder blue - light blue */
+    --color-secondary: #6969b3; /* Slate blue - medium blue */
+    --color-accent: #4a5568; /* Dark grey */
+    --color-accent-dark: #2d3748; /* Darker grey */
+    --color-text-dark: #2d3748; /* Dark grey for text */
   }
 
   .dark {
@@ -72,6 +81,8 @@
   }
   body {
     @apply bg-background text-foreground;
+    background-color: #eaf2f7;
+    font-family: "Faculty Glyphic", serif;
   }
 }
 
@@ -127,10 +138,4 @@ body {
 }
 footer {
   margin-top: auto !important;
-}
-
-body {
-  background-image: url("../../public/wickedbackground.svg");
-  background-repeat: no-repeat;
-  background-size: cover;
 }

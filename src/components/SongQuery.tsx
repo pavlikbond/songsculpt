@@ -76,10 +76,10 @@ const SongQuery = (props: Props) => {
   }, [settings]);
 
   return (
-    <div className="flex flex-col gap-10 w-full mx-auto max-w-2xl my-6 md:my-12">
+    <div className="flex flex-col gap-6 w-full mx-auto max-w-6xl my-4 md:my-8 px-4">
       <main className="hero">
-        <section className="max-w-2xl my-6 md:my-12 mx-auto">
-          <h1 className="text-xl md:text-5xl font-bold text-indigo-900 text-center mb-4 !leading-snug">
+        <section className="max-w-4xl my-4 md:my-8 mx-auto">
+          <h1 className="text-xl md:text-5xl font-bold text-[var(--color-accent-dark)] text-center mb-4 !leading-snug">
             Turn Lyrics into PowerPoint Presentations!
           </h1>
           {/* <p className="text-sm md:text-xl text-center text-slate-700">
@@ -89,7 +89,7 @@ const SongQuery = (props: Props) => {
         <SearchBar settings={settings}></SearchBar>
       </main>
 
-      <div className="grid gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <SettingsBox settings={settings} setSettings={setSettings} fontFamilies={fontFamilies} />
 
         <ExampleSlide settings={settings} />

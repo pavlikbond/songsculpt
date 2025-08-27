@@ -16,17 +16,19 @@ const numberOfLinesOptions = ["100", "1", "2", "3", "4", "5", "6", "7", "8", "9"
 
 const SettingsBox = ({ settings, setSettings, fontFamilies }: Props) => {
   return (
-    <Card className="bg-slate-100">
-      <CardHeader>
-        <CardTitle className="text-center">Settings</CardTitle>
+    <Card className="bg-[var(--color-primary)] border-[var(--color-accent)]">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-center text-[var(--color-accent-dark)]">Settings</CardTitle>
       </CardHeader>
 
       <CardContent>
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-4">
           {/* Checkboxes Section */}
-          <div className="space-y-3">
-            <h3 className="text-base font-bold text-gray-800 border-b border-gray-200 pb-1">Display Options</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div className="space-y-2">
+            <h3 className="text-base font-bold text-[var(--color-text-dark)] border-b border-[var(--color-accent)] pb-1">
+              Display Options
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
               <div className="flex items-center gap-2">
                 <Checkbox
                   checked={settings.includeTitleSlide}
@@ -37,7 +39,7 @@ const SettingsBox = ({ settings, setSettings, fontFamilies }: Props) => {
                 />
                 <label
                   htmlFor="includeTitle"
-                  className="text-sm font-medium leading-none cursor-pointer hover:text-gray-600 transition-colors"
+                  className="text-sm font-medium leading-none cursor-pointer hover:text-[var(--color-text-dark)] transition-colors"
                 >
                   Include Title Slide
                 </label>
@@ -52,7 +54,7 @@ const SettingsBox = ({ settings, setSettings, fontFamilies }: Props) => {
                 />
                 <label
                   htmlFor="includeSectionTitles"
-                  className="text-sm font-medium leading-none cursor-pointer hover:text-gray-600 transition-colors"
+                  className="text-sm font-medium leading-none cursor-pointer hover:text-[var(--color-text-dark)] transition-colors"
                 >
                   Include Section Titles
                 </label>
@@ -67,7 +69,7 @@ const SettingsBox = ({ settings, setSettings, fontFamilies }: Props) => {
                 />
                 <label
                   htmlFor="textShadow"
-                  className="text-sm font-medium leading-none cursor-pointer hover:text-gray-600 transition-colors"
+                  className="text-sm font-medium leading-none cursor-pointer hover:text-[var(--color-text-dark)] transition-colors"
                 >
                   Text Shadow
                 </label>
@@ -76,18 +78,22 @@ const SettingsBox = ({ settings, setSettings, fontFamilies }: Props) => {
           </div>
 
           {/* Layout and Styling Section */}
-          <div className="space-y-3">
-            <h3 className="text-base font-bold text-gray-800 border-b border-gray-200 pb-1">Layout & Styling</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="numberOfLines">Lines Per Slide</Label>
+          <div className="space-y-2">
+            <h3 className="text-base font-bold text-[var(--color-text-dark)] border-b border-[var(--color-accent)] pb-1">
+              Layout & Styling
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <Label htmlFor="numberOfLines" className="text-[var(--color-text-dark)]">
+                  Lines Per Slide
+                </Label>
                 <Select
                   value={settings.linesPerSlide}
                   onValueChange={(value) => {
                     setSettings({ ...settings, linesPerSlide: value });
                   }}
                 >
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger className="w-full bg-white border-[var(--color-accent)]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -100,8 +106,10 @@ const SettingsBox = ({ settings, setSettings, fontFamilies }: Props) => {
                 </Select>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="fontSelect">Font</Label>
+              <div className="space-y-1">
+                <Label htmlFor="fontSelect" className="text-[var(--color-text-dark)]">
+                  Font
+                </Label>
                 <Select
                   name="fontSelect"
                   onValueChange={(value) => {
@@ -109,7 +117,7 @@ const SettingsBox = ({ settings, setSettings, fontFamilies }: Props) => {
                   }}
                   value={settings.fontFamily}
                 >
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger className="w-full bg-white border-[var(--color-accent)]">
                     <SelectValue placeholder="Font" />
                   </SelectTrigger>
                   <SelectContent>
@@ -125,22 +133,24 @@ const SettingsBox = ({ settings, setSettings, fontFamilies }: Props) => {
           </div>
 
           {/* Colors Section */}
-          <div className="space-y-3">
-            <h3 className="text-base font-bold text-gray-800 border-b border-gray-200 pb-1">Colors</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <h3 className="text-base font-bold text-[var(--color-text-dark)] border-b border-[var(--color-accent)] pb-1">
+              Colors
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="flex items-center gap-3">
                 <input
                   value={settings.backgroundColor}
                   type="color"
                   name="backgroundColor"
-                  className="w-10 h-10 rounded border-2 border-gray-300 cursor-pointer hover:border-gray-400 transition-colors"
+                  className="w-10 h-10 rounded border-2 border-[var(--color-accent)] cursor-pointer hover:border-[var(--color-accent-dark)] transition-colors"
                   onChange={(e) => {
                     setSettings({ ...settings, backgroundColor: e.target.value });
                   }}
                 />
                 <label
                   htmlFor="backgroundColor"
-                  className="text-sm font-medium leading-none cursor-pointer hover:text-gray-600 transition-colors"
+                  className="text-sm font-medium leading-none cursor-pointer hover:text-[var(--color-text-dark)] transition-colors"
                 >
                   Background Color
                 </label>
@@ -150,14 +160,14 @@ const SettingsBox = ({ settings, setSettings, fontFamilies }: Props) => {
                   value={settings.textColor}
                   type="color"
                   name="textColor"
-                  className="w-10 h-10 rounded border-2 border-gray-300 cursor-pointer hover:border-gray-400 transition-colors"
+                  className="w-10 h-10 rounded border-2 border-[var(--color-accent)] cursor-pointer hover:border-[var(--color-accent-dark)] transition-colors"
                   onChange={(e) => {
                     setSettings({ ...settings, textColor: e.target.value });
                   }}
                 />
                 <label
                   htmlFor="textColor"
-                  className="text-sm font-medium leading-none cursor-pointer hover:text-gray-600 transition-colors"
+                  className="text-sm font-medium leading-none cursor-pointer hover:text-[var(--color-text-dark)] transition-colors"
                 >
                   Text Color
                 </label>
