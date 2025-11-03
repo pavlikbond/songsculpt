@@ -19,7 +19,13 @@ const ExampleSlide = ({ settings }: Props) => {
             style={{ color: settings.textColor, backgroundColor: settings.backgroundColor }}
           >
             {settings.includeSectionTitles && (
-              <p className="text-[6px] leading-snug sm:text-xs  md:text-sm" style={{ fontFamily: settings.fontFamily }}>
+              <p 
+                className="leading-snug" 
+                style={{ 
+                  fontFamily: settings.fontFamily,
+                  fontSize: `${parseInt(settings.fontSize) || 18}px`
+                }}
+              >
                 Verse 1
               </p>
             )}
@@ -29,9 +35,12 @@ const ExampleSlide = ({ settings }: Props) => {
               .map((line, index) => {
                 return (
                   <p
-                    style={{ fontFamily: settings.fontFamily }}
+                    style={{ 
+                      fontFamily: settings.fontFamily,
+                      fontSize: `${parseInt(settings.fontSize) || 18}px`
+                    }}
                     key={index}
-                    className={cn("text-[6px] leading-snug sm:text-xs  md:text-sm", {
+                    className={cn("leading-snug", {
                       "drop-shadow": settings.textShadow,
                     })}
                   >

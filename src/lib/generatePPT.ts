@@ -17,6 +17,7 @@ export default async function generateppt(lyrics: Lyrics, song: string, artist: 
     backgroundColor,
     textColor,
     fontFamily = "arial",
+    fontSize = "18",
     includeSectionTitles,
     textShadow,
     linesPerSlide,
@@ -59,7 +60,7 @@ export default async function generateppt(lyrics: Lyrics, song: string, artist: 
       y: "30%",
       w: "100%",
       h: "20%",
-      fontSize: 36,
+      fontSize: parseInt(fontSize) || 36,
       fontFace: fontFamily,
       color: textColor,
       align: "center",
@@ -83,7 +84,7 @@ export default async function generateppt(lyrics: Lyrics, song: string, artist: 
       y: 0,
       w: "100%",
       h: "100%",
-      fontSize: 18,
+      fontSize: parseInt(fontSize) || 18,
       fontFace: fontFamily,
       color: textColor,
       align: "center",
@@ -100,7 +101,7 @@ export default async function generateppt(lyrics: Lyrics, song: string, artist: 
   // 3. Save the Presentation
   let fileName = "";
 
-  if (artist && song) {
+  if (song) {
     fileName = `${song.replaceAll(" ", "_")}`;
   } else {
     fileName = "Lyrics" + Date.now();

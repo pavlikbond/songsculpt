@@ -82,7 +82,7 @@ const SettingsBox = ({ settings, setSettings, fontFamilies }: Props) => {
             <h3 className="text-base font-bold text-[var(--color-text-dark)] border-b border-[var(--color-accent)] pb-1">
               Layout & Styling
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div className="space-y-1">
                 <Label htmlFor="numberOfLines" className="text-[var(--color-text-dark)]">
                   Lines Per Slide
@@ -124,6 +124,30 @@ const SettingsBox = ({ settings, setSettings, fontFamilies }: Props) => {
                     {fontFamilies.map((font) => (
                       <SelectItem key={font} value={font} style={{ fontFamily: font }}>
                         {font}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-1">
+                <Label htmlFor="fontSizeSelect" className="text-[var(--color-text-dark)]">
+                  Font Size
+                </Label>
+                <Select
+                  name="fontSizeSelect"
+                  onValueChange={(value) => {
+                    setSettings({ ...settings, fontSize: value });
+                  }}
+                  value={settings.fontSize}
+                >
+                  <SelectTrigger className="w-full bg-white border-[var(--color-accent)]">
+                    <SelectValue placeholder="Font Size" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {["12", "14", "16", "18", "20", "24", "28", "32", "36", "40", "48", "56", "64"].map((size) => (
+                      <SelectItem key={size} value={size}>
+                        {size}pt
                       </SelectItem>
                     ))}
                   </SelectContent>
