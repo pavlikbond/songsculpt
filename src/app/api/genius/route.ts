@@ -103,6 +103,7 @@ export async function PUT(req: NextRequest) {
       // Get lyrics from the song object
       console.log("Fetching lyrics using genius-lyrics package...");
       lyricsString = await songObj.lyrics();
+      console.log({ lyricsString });
 
       // Process lyrics into array format
       lyricsArray = processLyrics(lyricsString);
