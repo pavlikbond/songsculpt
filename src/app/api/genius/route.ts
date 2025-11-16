@@ -76,14 +76,33 @@ export async function PUT(req: NextRequest) {
       // Initialize the Genius client with access token
       const client = new Client(ACCESS_TOKEN);
 
-      // Use the scrape method to get the song directly from the URL
-      // This is more efficient than searching again
-      console.log(`Scraping lyrics from URL: ${url}`);
-      const scrapedSong = await client.songs.scrape(url);
+      // Search for the song using the package
+      const searchQuery = artist ? `${song} ${artist}` : song;
+      console.log(`Searching for song with genius-lyrics package: ${searchQuery}`);
+      const searches = await client.songs.search(searchQuery);
 
-      // Get lyrics from the scraped song
+      if (!searches || searches.length === 0) {
+        return NextResponse.json(
+          {
+            error: "NO_SONG_FOUND",
+            message: "Could not find the song using genius-lyrics package.",
+          },
+          { status: 404 }
+        );
+      }
+
+      // Try to find the matching song by ID or URL, otherwise use first result
+      let songObj = searches.find((s: any) => s.id === songId || s.url === url);
+      if (!songObj) {
+        songObj = searches[0];
+        console.log(`Using first search result: ${songObj.title} by ${songObj.artist.name}`);
+      } else {
+        console.log(`Found matching song: ${songObj.title} by ${songObj.artist.name}`);
+      }
+
+      // Get lyrics from the song object
       console.log("Fetching lyrics using genius-lyrics package...");
-      lyricsString = await scrapedSong.lyrics();
+      lyricsString = await songObj.lyrics();
 
       // Process lyrics into array format
       lyricsArray = processLyrics(lyricsString);
