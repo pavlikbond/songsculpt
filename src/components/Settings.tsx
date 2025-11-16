@@ -145,7 +145,7 @@ const SettingsBox = ({ settings, setSettings, fontFamilies }: Props) => {
                     <SelectValue placeholder="Font Size" />
                   </SelectTrigger>
                   <SelectContent>
-                    {["12", "14", "16", "18", "20", "24", "28", "32", "36", "40", "48", "56", "64"].map((size) => (
+                    {["8", "9", "10", "11", "12", "14", "16", "18", "20", "24", "28", "32", "36", "40", "48", "56", "64"].map((size) => (
                       <SelectItem key={size} value={size}>
                         {size}pt
                       </SelectItem>

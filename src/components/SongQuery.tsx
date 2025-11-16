@@ -28,7 +28,7 @@ const defaultSettings = {
   backgroundColor: "#dbdbdb",
   textColor: "#000000",
   fontFamily: fontFamilies[0],
-  fontSize: "18",
+  fontSize: "12",
   includeSectionTitles: true,
   textShadow: false,
   linesPerSlide: "100",

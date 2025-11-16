@@ -72,6 +72,13 @@ const SearchBar = ({ settings }: Props) => {
     formChanged.current = true;
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && activeMethod === "query") {
+      e.preventDefault();
+      handleQuerySubmit();
+    }
+  };
+
   // Validate Genius URL on frontend
   const isValidGeniusUrl = (urlString: string): boolean => {
     try {
@@ -398,6 +405,7 @@ const SearchBar = ({ settings }: Props) => {
                 id="song"
                 value={song}
                 onChange={handlesongUpdate}
+                onKeyDown={handleKeyDown}
                 className={errorMessages.song ? "border border-red-400" : "border-[var(--color-accent)]"}
               />
               <p className="text-red-500 text-sm h-5 ">{errorMessages.song}</p>
@@ -411,6 +419,7 @@ const SearchBar = ({ settings }: Props) => {
                 id="artist"
                 value={artist}
                 onChange={handleArtistUpdate}
+                onKeyDown={handleKeyDown}
                 className={errorMessages.artist ? "border border-red-400" : "border-[var(--color-accent)]"}
               />
               <p className="text-red-500 text-sm h-5">{errorMessages.artist}</p>

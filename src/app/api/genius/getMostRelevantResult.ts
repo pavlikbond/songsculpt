@@ -17,31 +17,40 @@ export default function getMostRelevantResult(
   song: string,
   artist: string
 ): GeniusSearchHit | null {
-  console.log("hits:", hits);
-  console.log(hits[0].result.stats);
-  console.log(hits[0].result.primary_artist);
-  console.log(hits[0].result.primary_artists);
   //if hits are an empty array return null
   if (hits.length === 0) {
     return null;
   }
+
+  console.log("hits:", hits);
+  // Safely log debug info with optional chaining
+  if (hits[0]?.result) {
+    console.log(hits[0].result.stats);
+    console.log(hits[0].result.primary_artist);
+    console.log(hits[0].result.primary_artists);
+  }
   //if hits title contains the word 'instrumental' filter it out
+  // Also filter out any hits with missing result data
   let filteredHits = hits.filter((hit) => {
+    if (!hit?.result?.full_title) return false;
     return !hit.result.full_title.toLowerCase().includes("instrumental");
   });
 
   //filter out songs that say 'remix' in the title unless the search query also contains the word 'remix'
   if (!song.toLowerCase().includes("remix")) {
     filteredHits = filteredHits.filter((hit) => {
+      if (!hit?.result?.full_title) return false;
       return !hit.result.full_title.toLowerCase().includes("remix");
     });
   }
 
   // Create a list of items to search through
-  const itemsToSearch: SearchItem[] = filteredHits.map((hit) => ({
-    title: removeStopWords(hit.result.full_title),
-    artist: removeStopWords(hit.result.artist_names),
-  }));
+  const itemsToSearch: SearchItem[] = filteredHits
+    .filter((hit) => hit?.result?.full_title && hit?.result?.artist_names)
+    .map((hit) => ({
+      title: removeStopWords(hit.result.full_title),
+      artist: removeStopWords(hit.result.artist_names),
+    }));
 
   // Remove stop words from search query
   const normalizedSong = removeStopWords(song);
