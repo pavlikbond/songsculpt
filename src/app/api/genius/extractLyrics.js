@@ -18,20 +18,53 @@ export default async function extractLyrics(url) {
     Referer: "https://genius.com/",
     Connection: "keep-alive",
     "Upgrade-Insecure-Requests": "1",
+    "Sec-Fetch-Dest": "document",
+    "Sec-Fetch-Mode": "navigate",
+    "Sec-Fetch-Site": "same-origin",
+    "Sec-Fetch-User": "?1",
   };
 
-  // Axios configuration with timeout
-  const axiosConfig = {
-    headers,
+  // Create axios instance to maintain cookies across requests
+  const axiosInstance = axios.create({
     timeout: 15000, // 15 second timeout
     validateStatus: function (status) {
       return status < 500; // Don't throw on 4xx errors, we'll handle them
     },
-  };
+    headers,
+    withCredentials: true, // Enable cookies
+  });
+
+  // Warm-up: Make a request to Genius homepage first to establish session/cookies
+  // This helps bypass bot detection on the first request
+  try {
+    console.log("Making warm-up request to Genius homepage...");
+    await axiosInstance.get("https://genius.com/", {
+      headers: {
+        ...headers,
+        "Sec-Fetch-Dest": "document",
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-Fetch-Site": "none",
+      },
+    });
+    // Small delay after warm-up
+    await new Promise((resolve) => setTimeout(resolve, 200));
+  } catch (warmUpError) {
+    // Ignore warm-up errors, continue anyway
+    console.log("Warm-up request failed, continuing anyway:", warmUpError.message);
+  }
 
   while (retries < maxRetries) {
     try {
-      const response = await axios.get(url, axiosConfig);
+      // Use the axios instance to maintain cookies from warm-up
+      const response = await axiosInstance.get(url, {
+        headers: {
+          ...headers,
+          Referer: "https://genius.com/",
+          "Sec-Fetch-Dest": "document",
+          "Sec-Fetch-Mode": "navigate",
+          "Sec-Fetch-Site": "same-origin",
+        },
+      });
       const { data, status } = response;
 
       // Check if we got a non-200 status
@@ -89,8 +122,9 @@ export default async function extractLyrics(url) {
         throw error;
       }
 
-      // Add exponential backoff delay before retrying (100ms, 200ms, 400ms)
-      const delayMs = 100 * Math.pow(2, retries - 1);
+      // Add exponential backoff delay before retrying (500ms, 1000ms, 2000ms)
+      // Longer delays help with bot detection
+      const delayMs = 500 * Math.pow(2, retries - 1);
       console.log(`Retrying in ${delayMs}ms...`);
       await new Promise((resolve) => setTimeout(resolve, delayMs));
     }
