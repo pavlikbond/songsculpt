@@ -53,7 +53,6 @@ export async function PUT(req: NextRequest) {
 
     let relevantHit = getMostRelevantResult(hits, song, artist || "");
 
-    console.log("relevantHit:", relevantHit);
     let lyrics; //: { sectionTitle: string; lyrics: string }[];
     let url = "";
     let lyricsString = "";
@@ -82,6 +81,7 @@ export async function PUT(req: NextRequest) {
     try {
       extractedResponse = await extractLyrics(url);
     } catch (extractError: any) {
+      console.error("Error extracting lyrics:", extractError);
       return NextResponse.json(
         {
           error: "LYRICS_EXTRACTION_FAILED",
