@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { type NextRequest } from "next/server";
 import axios from "axios";
-import extractLyrics from "./extractLyrics";
+import { Client } from "genius-lyrics";
 import getMostRelevantResult from "./getMostRelevantResult";
-import { GeniusSearchHit } from "@/types";
+import { GeniusSearchHit, Lyrics } from "@/types";
+import { processLyrics } from "@/lib/utils";
 
 const BASE_URL = "https://api.genius.com";
 const ACCESS_TOKEN = process.env.GENIUS_ACCESS_TOKEN;
@@ -53,10 +54,6 @@ export async function PUT(req: NextRequest) {
 
     let relevantHit = getMostRelevantResult(hits, song, artist || "");
 
-    let lyrics; //: { sectionTitle: string; lyrics: string }[];
-    let url = "";
-    let lyricsString = "";
-
     if (!relevantHit) {
       return NextResponse.json(
         {
@@ -68,55 +65,45 @@ export async function PUT(req: NextRequest) {
     }
 
     const songId = relevantHit.result?.id;
-    url = relevantHit.result?.url;
+    const url = relevantHit.result?.url;
 
-    // Step 2: Try to get page data from Genius API web_page endpoint first
-    // This might provide structured data and avoid Cloudflare blocking
-    let extractedResponse;
-    let useApiData = false;
+    // Step 2: Use genius-lyrics package to get lyrics
+    // This package handles scraping with proper headers and bypasses Cloudflare
+    let lyricsString = "";
+    let lyricsArray: Lyrics = [];
 
     try {
-      // Try using the Genius API web_page endpoint
-      const webPageUrl = `${BASE_URL}/web_pages?raw_annotatable_url=${encodeURIComponent(url)}`;
-      const webPageResponse = await axios.get(webPageUrl, {
-        headers: { Authorization: `Bearer ${ACCESS_TOKEN}` },
+      // Initialize the Genius client with access token
+      const client = new Client(ACCESS_TOKEN);
+
+      // Use the scrape method to get the song directly from the URL
+      // This is more efficient than searching again
+      console.log(`Scraping lyrics from URL: ${url}`);
+      const scrapedSong = await client.songs.scrape(url);
+
+      // Get lyrics from the scraped song
+      console.log("Fetching lyrics using genius-lyrics package...");
+      lyricsString = await scrapedSong.lyrics();
+
+      // Process lyrics into array format
+      lyricsArray = processLyrics(lyricsString);
+
+      console.log(`Successfully extracted ${lyricsArray.length} lyric sections`);
+    } catch (lyricsError: any) {
+      console.error("Error fetching lyrics with genius-lyrics package:", {
+        message: lyricsError.message,
+        name: lyricsError.name,
+        stack: lyricsError.stack,
       });
 
-      // Check if the API returned HTML or page content we can use
-      const webPage = webPageResponse.data?.response?.web_page;
-      if (webPage?.html) {
-        // If we got HTML from API, try to extract lyrics from it
-        console.log("Got HTML from Genius API web_page endpoint, extracting lyrics...");
-        try {
-          extractedResponse = await extractLyrics(url, webPage.html);
-          useApiData = true;
-        } catch (extractError: any) {
-          console.log("Failed to extract from API HTML, will try scraping");
-        }
-      }
-    } catch (apiError: any) {
-      // If API endpoint doesn't work or doesn't have lyrics, fall back to scraping
-      console.log("Genius API web_page endpoint failed or no HTML, falling back to scraping:", apiError.message);
+      return NextResponse.json(
+        {
+          error: "LYRICS_EXTRACTION_FAILED",
+          message: "Failed to extract lyrics. Please try again.",
+        },
+        { status: 500 }
+      );
     }
-
-    // Step 3: Extract lyrics from the Genius page (scraping fallback if API didn't work)
-    if (!useApiData) {
-      try {
-        extractedResponse = await extractLyrics(url);
-      } catch (extractError: any) {
-        console.error("Error extracting lyrics:", extractError);
-        return NextResponse.json(
-          {
-            error: "LYRICS_EXTRACTION_FAILED",
-            message: "Failed to extract lyrics from Genius.com. The song page may not be available.",
-          },
-          { status: 404 }
-        );
-      }
-    }
-
-    let lyricsArray = extractedResponse?.lyricsArray;
-    lyricsString = extractedResponse?.lyrics || "";
 
     // Check if lyrics were actually extracted
     if (!lyricsArray || lyricsArray.length === 0 || !lyricsString || lyricsString.trim().length === 0) {
@@ -129,10 +116,7 @@ export async function PUT(req: NextRequest) {
       );
     }
 
-    lyrics = lyricsArray;
-    //log out all the variables
-
-    return NextResponse.json({ lyrics: lyrics }, { status: 200 });
+    return NextResponse.json({ lyrics: lyricsArray }, { status: 200 });
   } catch (error: any) {
     console.error("Error fetching data from Genius API:", error);
 
