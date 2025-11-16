@@ -67,12 +67,13 @@ export async function PUT(req: NextRequest) {
     }
 
     const songId = relevantHit.result?.id;
+    url = relevantHit.result?.url;
     // Step 2: Get lyrics for the song
-    const lyricsUrl = `${BASE_URL}/songs/${songId}`;
-    const lyricsResponse = await axios.get(lyricsUrl, {
-      headers: { Authorization: `Bearer ${ACCESS_TOKEN}` },
-    });
-    url = lyricsResponse.data.response.song.url;
+    // const lyricsUrl = `${BASE_URL}/songs/${songId}`;
+    // const lyricsResponse = await axios.get(lyricsUrl, {
+    //   headers: { Authorization: `Bearer ${ACCESS_TOKEN}` },
+    // });
+    // url = lyricsResponse.data.response.song.url;
 
     // Step 3: Extract lyrics from the Genius page
     let extractedResponse;

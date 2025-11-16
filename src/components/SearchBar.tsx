@@ -270,14 +270,14 @@ const SearchBar = ({ settings }: Props) => {
       return;
     }
 
-    if (!formChanged.current) {
-      createPpt(trimmedSong, trimmedArtist);
-    } else {
-      mutation.mutate({
-        song: trimmedSong,
-        artist: trimmedArtist,
-      });
-    }
+    // if (!formChanged.current) {
+    //   createPpt(trimmedSong, trimmedArtist);
+    // } else {
+    mutation.mutate({
+      song: trimmedSong,
+      artist: trimmedArtist,
+    });
+    // }
   };
 
   const handleUrlSubmit = async () => {
