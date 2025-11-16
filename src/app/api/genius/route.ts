@@ -79,12 +79,82 @@ export async function PUT(req: NextRequest) {
     try {
       extractedResponse = await extractLyrics(url);
     } catch (extractError: any) {
+      // Log detailed error information for debugging
+      console.error("Error extracting lyrics from Genius:", {
+        message: extractError.message,
+        code: extractError.code,
+        status: extractError.response?.status,
+        statusText: extractError.response?.statusText,
+        url: extractError.config?.url,
+        stack: extractError.stack,
+      });
+
+      // Handle specific error types
+      const status = extractError.response?.status;
+      const errorCode = extractError.code;
+
+      // Handle 403 Forbidden (bot detection/blocked)
+      if (status === 403) {
+        return NextResponse.json(
+          {
+            error: "LYRICS_EXTRACTION_FAILED",
+            message: "Access to the Genius page was denied. Please try again in a moment.",
+          },
+          { status: 403 }
+        );
+      }
+
+      // Handle 429 Rate Limit
+      if (status === 429) {
+        return NextResponse.json(
+          {
+            error: "LYRICS_EXTRACTION_FAILED",
+            message: "Too many requests. Please wait a moment and try again.",
+          },
+          { status: 429 }
+        );
+      }
+
+      // Handle timeout errors
+      if (errorCode === "ECONNABORTED" || errorCode === "ETIMEDOUT" || extractError.message?.includes("timeout")) {
+        return NextResponse.json(
+          {
+            error: "LYRICS_EXTRACTION_FAILED",
+            message: "Request timed out. Please try again.",
+          },
+          { status: 504 }
+        );
+      }
+
+      // Handle network errors
+      if (errorCode === "ECONNREFUSED" || errorCode === "ENOTFOUND") {
+        return NextResponse.json(
+          {
+            error: "LYRICS_EXTRACTION_FAILED",
+            message: "Network error. Please check your connection and try again.",
+          },
+          { status: 503 }
+        );
+      }
+
+      // Handle 404 Not Found
+      if (status === 404) {
+        return NextResponse.json(
+          {
+            error: "LYRICS_EXTRACTION_FAILED",
+            message: "The Genius page was not found. The song page may not be available.",
+          },
+          { status: 404 }
+        );
+      }
+
+      // Generic fallback for other errors
       return NextResponse.json(
         {
           error: "LYRICS_EXTRACTION_FAILED",
-          message: "Failed to extract lyrics from Genius.com. The song page may not be available.",
+          message: "Failed to extract lyrics from Genius.com. Please try again.",
         },
-        { status: 404 }
+        { status: 500 }
       );
     }
 
