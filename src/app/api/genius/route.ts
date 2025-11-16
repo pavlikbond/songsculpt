@@ -90,7 +90,12 @@ export async function PUT(req: NextRequest) {
       });
 
       // Handle specific error types
-      const status = extractError.response?.status;
+      // Check both response.status and error.message for status codes (since we attach response to custom errors
+      const status =
+        extractError.response?.status ||
+        (extractError.message?.match(/HTTP (\d+)/)?.[1]
+          ? parseInt(extractError.message.match(/HTTP (\d+)/)[1])
+          : undefined);
       const errorCode = extractError.code;
 
       // Handle 403 Forbidden (bot detection/blocked)

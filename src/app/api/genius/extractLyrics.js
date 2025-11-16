@@ -31,15 +31,21 @@ export default async function extractLyrics(url) {
 
   while (retries < maxRetries) {
     try {
-      const { data, status } = await axios.get(url, axiosConfig);
+      const response = await axios.get(url, axiosConfig);
+      const { data, status } = response;
 
       // Check if we got a non-200 status
       if (status !== 200) {
-        throw new Error(
-          `HTTP ${status}: ${
-            status === 403 ? "Forbidden" : status === 429 ? "Rate Limited" : status === 404 ? "Not Found" : "Error"
-          }`
-        );
+        // Create an error that preserves the response information
+        const statusText =
+          status === 403 ? "Forbidden" : status === 429 ? "Rate Limited" : status === 404 ? "Not Found" : "Error";
+        const error = new Error(`HTTP ${status}: ${statusText}`);
+        // Attach response details to the error so route.ts can access them
+        error.response = { status, statusText: response.statusText || statusText, data };
+        error.config = { url };
+        error.code =
+          status === 403 ? "FORBIDDEN" : status === 429 ? "RATE_LIMIT" : status === 404 ? "NOT_FOUND" : "HTTP_ERROR";
+        throw error;
       }
 
       const $ = cheerio.load(data);
