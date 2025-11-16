@@ -10,7 +10,13 @@ export default async function extractLyrics(url) {
 
   while (retries < maxRetries) {
     try {
-      const { data } = await axios.get(url);
+      const { data } = await axios.get(url, {
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+          Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+        },
+      });
       const $ = cheerio.load(data);
       let lyrics = $('div[class="lyrics"]').text().trim();
 
@@ -36,6 +42,8 @@ export default async function extractLyrics(url) {
       console.error(`Attempt ${retries + 1} failed. Retrying...`);
       retries++;
       if (retries === maxRetries) throw error;
+      // Small delay before retrying to help with Cloudflare challenges
+      await new Promise((resolve) => setTimeout(resolve, 500));
     }
   }
 }
