@@ -69,26 +69,50 @@ export async function PUT(req: NextRequest) {
 
     const songId = relevantHit.result?.id;
     url = relevantHit.result?.url;
-    // Step 2: Get lyrics for the song
-    // const lyricsUrl = `${BASE_URL}/songs/${songId}`;
-    // const lyricsResponse = await axios.get(lyricsUrl, {
-    //   headers: { Authorization: `Bearer ${ACCESS_TOKEN}` },
-    // });
-    // url = lyricsResponse.data.response.song.url;
 
-    // Step 3: Extract lyrics from the Genius page
+    // Step 2: Try to get page data from Genius API web_page endpoint first
+    // This might provide structured data and avoid Cloudflare blocking
     let extractedResponse;
+    let useApiData = false;
+
     try {
-      extractedResponse = await extractLyrics(url);
-    } catch (extractError: any) {
-      console.error("Error extracting lyrics:", extractError);
-      return NextResponse.json(
-        {
-          error: "LYRICS_EXTRACTION_FAILED",
-          message: "Failed to extract lyrics from Genius.com. The song page may not be available.",
-        },
-        { status: 404 }
-      );
+      // Try using the Genius API web_page endpoint
+      const webPageUrl = `${BASE_URL}/web_pages?raw_annotatable_url=${encodeURIComponent(url)}`;
+      const webPageResponse = await axios.get(webPageUrl, {
+        headers: { Authorization: `Bearer ${ACCESS_TOKEN}` },
+      });
+
+      // Check if the API returned HTML or page content we can use
+      const webPage = webPageResponse.data?.response?.web_page;
+      if (webPage?.html) {
+        // If we got HTML from API, try to extract lyrics from it
+        console.log("Got HTML from Genius API web_page endpoint, extracting lyrics...");
+        try {
+          extractedResponse = await extractLyrics(url, webPage.html);
+          useApiData = true;
+        } catch (extractError: any) {
+          console.log("Failed to extract from API HTML, will try scraping");
+        }
+      }
+    } catch (apiError: any) {
+      // If API endpoint doesn't work or doesn't have lyrics, fall back to scraping
+      console.log("Genius API web_page endpoint failed or no HTML, falling back to scraping:", apiError.message);
+    }
+
+    // Step 3: Extract lyrics from the Genius page (scraping fallback if API didn't work)
+    if (!useApiData) {
+      try {
+        extractedResponse = await extractLyrics(url);
+      } catch (extractError: any) {
+        console.error("Error extracting lyrics:", extractError);
+        return NextResponse.json(
+          {
+            error: "LYRICS_EXTRACTION_FAILED",
+            message: "Failed to extract lyrics from Genius.com. The song page may not be available.",
+          },
+          { status: 404 }
+        );
+      }
     }
 
     let lyricsArray = extractedResponse?.lyricsArray;

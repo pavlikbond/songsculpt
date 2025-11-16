@@ -3,20 +3,39 @@ import * as cheerio from "cheerio";
 
 /**
  * @param {string} url - Genius URL
+ * @param {string} html - Optional HTML content (if provided, skips fetching)
  */
-export default async function extractLyrics(url) {
+export default async function extractLyrics(url, html = null) {
   const maxRetries = 3; // Define the maximum number of retries
   let retries = 0; // Initialize the retry count
 
   while (retries < maxRetries) {
     try {
-      const { data } = await axios.get(url, {
-        headers: {
-          "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-          Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-        },
-      });
+      let data;
+      // If HTML is provided (from API), use it directly; otherwise fetch from URL
+      if (html) {
+        data = html;
+      } else {
+        const response = await axios.get(url, {
+          headers: {
+            "User-Agent":
+              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+            "Accept-Language": "en-US,en;q=0.9",
+            "Accept-Encoding": "gzip, deflate, br",
+            "Sec-CH-UA": '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
+            "Sec-CH-UA-Mobile": "?0",
+            "Sec-CH-UA-Platform": '"Windows"',
+            "Sec-Fetch-Dest": "document",
+            "Sec-Fetch-Mode": "navigate",
+            "Sec-Fetch-Site": "none",
+            "Sec-Fetch-User": "?1",
+            "Upgrade-Insecure-Requests": "1",
+            "Cache-Control": "max-age=0",
+          },
+        });
+        data = response.data;
+      }
       const $ = cheerio.load(data);
       let lyrics = $('div[class="lyrics"]').text().trim();
 
