@@ -6,11 +6,26 @@ import getMostRelevantResult from "./getMostRelevantResult";
 import { GeniusSearchHit } from "@/types";
 
 const BASE_URL = "https://api.genius.com";
-const ACCESS_TOKEN = process.env.GENIUS_ACCESS_TOKEN;
 
 //handler for getting lyrics from musixmatch api using fetch
 export async function PUT(req: NextRequest) {
   console.log("PUT /api/genius");
+  
+  // Read environment variable at runtime (not module load time) to handle cold starts
+  const ACCESS_TOKEN = process.env.GENIUS_ACCESS_TOKEN;
+  
+  // Validate that the access token exists
+  if (!ACCESS_TOKEN) {
+    console.error("GENIUS_ACCESS_TOKEN is not set");
+    return NextResponse.json(
+      {
+        error: "CONFIGURATION_ERROR",
+        message: "Server configuration error. Please try again.",
+      },
+      { status: 500 }
+    );
+  }
+  
   //get song and artist from request body
   const body = await req.json();
   const { song, artist }: { song: string; artist?: string } = body;
@@ -95,6 +110,18 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ lyrics: lyrics }, { status: 200 });
   } catch (error: any) {
     console.error("Error fetching data from Genius API:", error);
+
+    // Handle 401 Unauthorized errors (missing/invalid token)
+    if (error.response?.status === 401) {
+      console.error("Genius API authentication failed - token may be missing or invalid");
+      return NextResponse.json(
+        {
+          error: "AUTHENTICATION_ERROR",
+          message: "Server configuration error. Please try again.",
+        },
+        { status: 500 }
+      );
+    }
 
     // If error already has a specific message from our code above, return it
     if (error.response?.data?.error && error.response?.data?.message) {
