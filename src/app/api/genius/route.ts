@@ -6,14 +6,12 @@ import getMostRelevantResult from "./getMostRelevantResult";
 import { GeniusSearchHit } from "@/types";
 
 const BASE_URL = "https://api.genius.com";
+const ACCESS_TOKEN = process.env.GENIUS_ACCESS_TOKEN;
 
 //handler for getting lyrics from musixmatch api using fetch
 export async function PUT(req: NextRequest) {
   console.log("PUT /api/genius");
-  
-  // Read environment variable at runtime (not module load time) to handle cold starts
-  const ACCESS_TOKEN = process.env.GENIUS_ACCESS_TOKEN;
-  
+
   // Validate that the access token exists
   if (!ACCESS_TOKEN) {
     console.error("GENIUS_ACCESS_TOKEN is not set");
@@ -25,7 +23,7 @@ export async function PUT(req: NextRequest) {
       { status: 500 }
     );
   }
-  
+
   //get song and artist from request body
   const body = await req.json();
   const { song, artist }: { song: string; artist?: string } = body;
