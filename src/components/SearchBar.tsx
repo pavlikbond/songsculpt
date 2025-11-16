@@ -39,7 +39,7 @@ const SearchBar = ({ settings }: Props) => {
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [responseMessage, setResponseMessage] = useState({ message: "", type: "" });
-  const [activeMethod, setActiveMethod] = useState("query");
+  const [activeMethod, setActiveMethod] = useState("paste");
   const formChanged = useRef(false);
   const [errorMessages, setErrorMessages] = useState({
     song: "",
@@ -339,6 +339,14 @@ const SearchBar = ({ settings }: Props) => {
         <CardTitle className="text-center text-[var(--color-text-dark)]">Generate PowerPoint</CardTitle>
       </CardHeader>
       <CardContent>
+        {/* Banner about Genius.com blocking */}
+        <MessageDisplay
+          responseMessage={{
+            type: "error",
+            message:
+              "Genius.com no longer allows us to get lyrics from them, so we cannot continue getting lyrics automatically. We are very sorry. You can still paste lyrics manually below.",
+          }}
+        />
         {/* Input Method Selection */}
         <div className="flex justify-center mb-6">
           {/* HTML Radio Buttons */}
@@ -353,9 +361,10 @@ const SearchBar = ({ settings }: Props) => {
                 onChange={(e) => {
                   setActiveMethod(e.target.value);
                 }}
-                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500"
+                disabled
+                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 opacity-50 cursor-not-allowed"
               />
-              <label htmlFor="query" className="text-[var(--color-text-dark)] cursor-pointer">
+              <label htmlFor="query" className="text-[var(--color-text-dark)] opacity-50 cursor-not-allowed">
                 Search by Song Name
               </label>
             </div>
@@ -385,9 +394,10 @@ const SearchBar = ({ settings }: Props) => {
                 onChange={(e) => {
                   setActiveMethod(e.target.value);
                 }}
-                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500"
+                disabled
+                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 opacity-50 cursor-not-allowed"
               />
-              <label htmlFor="url" className="text-[var(--color-text-dark)] cursor-pointer">
+              <label htmlFor="url" className="text-[var(--color-text-dark)] opacity-50 cursor-not-allowed">
                 Paste URL
               </label>
             </div>
@@ -395,7 +405,7 @@ const SearchBar = ({ settings }: Props) => {
         </div>
         {/* Query Method */}
         {activeMethod === "query" && (
-          <div className="flex md:gap-4 h-fit items-center flex-col md:flex-row py-4">
+          <div className="flex md:gap-4 h-fit items-center flex-col md:flex-row py-4 opacity-50">
             <div className="grid items-center gap-1.5 w-full">
               <label htmlFor="song" className="text-sm text-[var(--color-text-dark)]">
                 Song name
@@ -406,6 +416,7 @@ const SearchBar = ({ settings }: Props) => {
                 value={song}
                 onChange={handlesongUpdate}
                 onKeyDown={handleKeyDown}
+                disabled
                 className={errorMessages.song ? "border border-red-400" : "border-[var(--color-accent)]"}
               />
               <p className="text-red-500 text-sm h-5 ">{errorMessages.song}</p>
@@ -420,6 +431,7 @@ const SearchBar = ({ settings }: Props) => {
                 value={artist}
                 onChange={handleArtistUpdate}
                 onKeyDown={handleKeyDown}
+                disabled
                 className={errorMessages.artist ? "border border-red-400" : "border-[var(--color-accent)]"}
               />
               <p className="text-red-500 text-sm h-5">{errorMessages.artist}</p>
@@ -429,6 +441,7 @@ const SearchBar = ({ settings }: Props) => {
               <Button
                 onClick={handleClear}
                 variant="outline"
+                disabled
                 className="border-[var(--color-accent)] text-[var(--color-text-dark)] hover:bg-[var(--color-accent)]/10"
               >
                 Clear
@@ -437,7 +450,7 @@ const SearchBar = ({ settings }: Props) => {
                 onClick={() => {
                   onSubmit("query");
                 }}
-                disabled={loading || mutation.isPending}
+                disabled
                 className="bg-[var(--color-accent-dark)] hover:bg-[var(--color-accent)] text-white"
               >
                 {loading || (mutation.isPending && <Loader2 className="animate-spin mr-2" size={24} />)}
@@ -488,7 +501,7 @@ const SearchBar = ({ settings }: Props) => {
 
         {/* Paste URL Method */}
         {activeMethod === "url" && (
-          <div className="py-4">
+          <div className="py-4 opacity-50">
             <div className="grid items-center gap-1.5 w-full mb-4">
               <label htmlFor="genius-url" className="text-sm text-[var(--color-text-dark)]">
                 Paste Genius URL
@@ -498,6 +511,7 @@ const SearchBar = ({ settings }: Props) => {
                 id="genius-url"
                 value={url}
                 onChange={handleUrlUpdate}
+                disabled
                 className={errorMessages.url ? "border border-red-400" : "border-[var(--color-accent)]"}
               />
               <p className="text-red-500 text-sm h-5">{errorMessages.url}</p>
@@ -512,6 +526,7 @@ const SearchBar = ({ settings }: Props) => {
               <Button
                 onClick={handleClear}
                 variant="outline"
+                disabled
                 className="border-[var(--color-accent)] text-[var(--color-text-dark)] hover:bg-[var(--color-accent)]/10"
               >
                 Clear
@@ -520,7 +535,7 @@ const SearchBar = ({ settings }: Props) => {
                 onClick={() => {
                   onSubmit("url");
                 }}
-                disabled={loading || mutation.isPending || urlMutation.isPending}
+                disabled
                 className="bg-[var(--color-accent-dark)] hover:bg-[var(--color-accent)] text-white"
               >
                 {(loading || urlMutation.isPending) && <Loader2 className="animate-spin mr-2" size={24} />}
